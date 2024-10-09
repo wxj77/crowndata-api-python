@@ -1,6 +1,6 @@
 import numpy as np
-import pytest
 from clustering import define_clusters
+
 
 def test_define_clusters_basic():
     """
@@ -10,9 +10,9 @@ def test_define_clusters_basic():
     epsilon = 0.5
     expected_clusters = {
         0: np.array([[1.0, 2.0], [1.1, 2.1]]),
-        1: np.array([[5.0, 6.0], [5.1, 6.2]])
+        1: np.array([[5.0, 6.0], [5.1, 6.2]]),
     }
-    
+
     clusters = define_clusters(data, epsilon)
 
     # Check if clusters match the expected result
@@ -29,7 +29,7 @@ def test_define_clusters_no_clusters():
     expected_clusters = {
         0: np.array([[1, 2]]),
         1: np.array([[3, 4]]),
-        2: np.array([[5, 6]])
+        2: np.array([[5, 6]]),
     }
 
     clusters = define_clusters(data, epsilon)
@@ -45,9 +45,7 @@ def test_define_clusters_large_epsilon():
     """
     data = np.array([[1, 2], [1.1, 2.1], [5, 6]])
     epsilon = 10  # Large enough to group all points together
-    expected_clusters = {
-        0: np.array([[1.0, 2.0], [1.1, 2.1], [5.0, 6.0]])
-    }
+    expected_clusters = {0: np.array([[1.0, 2.0], [1.1, 2.1], [5.0, 6.0]])}
 
     clusters = define_clusters(data, epsilon)
 
