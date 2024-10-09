@@ -1,0 +1,11 @@
+services:
+  web:
+    image: python:3.11-slim   # Use the official Python image
+    volumes:
+      - ../crowndata-evaluation:/crowndata-evaluation   # Mount the correct directory to the container
+    working_dir: /crowndata-evaluation   # Set the working directory to the root of your project
+    command: /bin/bash -c "pip install poetry && poetry install --no-dev && poetry run uvicorn crowndata_evaluation.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"   # Expose port 8000 to the host machine
+    environment:
+      - ENVIRONMENT=production  # Set environment variable
