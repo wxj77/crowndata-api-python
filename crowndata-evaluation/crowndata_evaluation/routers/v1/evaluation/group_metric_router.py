@@ -37,7 +37,7 @@ async def group_metric(request: EvaluationGroupMetricRequest):
     data = []
     action_consistencies = []
     for data_name in request.dataNames:
-        file_path = f"./example_data/data/{data_name}/trajectories/cartesian_position__trajectory.json"
+        file_path = f"./public/data/{data_name}/trajectories/cartesian_position__trajectory.json"
         data_item = read_json_file(file_path)
         action_consistency = get_action_consistency(data=data_item)
         action_consistencies.append(action_consistency)
