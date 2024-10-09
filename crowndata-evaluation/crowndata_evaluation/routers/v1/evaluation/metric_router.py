@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from crowndata_evaluation.services.metric import get_action_consistency
-from crowndata_evaluation.services.utils import read_json_file
+from crowndata_evaluation.services.utils import read_trajectory_json
 
 metric_router = APIRouter()
 
@@ -72,8 +72,7 @@ async def metric(request: EvaluationMetricRequest):
     if request.data is not None:
         data = request.data
     elif request.dataName is not None:
-        file_path = f"./example_data/data/{request.dataName}/trajectories/cartesian_position__trajectory.json"
-        data = read_json_file(file_path)
+        data = read_trajectory_json(data_name=request.dataName)
 
     action_consistency = get_action_consistency(data=data)
 
