@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
-from crowndata_evaluation.services.utils import read_json_file
+from crowndata_evaluation.services.utils import read_trajectory_json
 from crowndata_evaluation.services.state_similarity import TrajectorySimilarity
 
 compare_metric_router = APIRouter()
@@ -116,16 +116,14 @@ async def compare_metric(request: EvaluationCompareMetricRequest):
     if request.data1 is not None:
         data1 = request.data1
     elif request.dataName1 is not None:
-        file_path1 = f"./public/data/{request.dataName1}/trajectories/cartesian_position__trajectory.json"
-        data1 = read_json_file(file_path1)
+        data1 = read_trajectory_json(data_name=request.dataName1)
 
     # Handle data2
     data2 = None
     if request.data2 is not None:
         data2 = request.data2
     elif request.dataName2 is not None:
-        file_path2 = f"./public/data/{request.dataName2}/trajectories/cartesian_position__trajectory.json"
-        data2 = read_json_file(file_path2)
+        data2 = read_trajectory_json(data_name=request.dataName2)
 
     # Ensure data is available before processing
     if data1 is None or data2 is None:

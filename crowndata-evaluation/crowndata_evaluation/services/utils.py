@@ -2,12 +2,12 @@ import json
 import numpy as np
 
 
-def read_json_file(file_path: str) -> np.ndarray:
+def read_trajectory_json(data_name: str) -> np.ndarray:
     """
     Reads a JSON file and returns the data as a NumPy array.
 
     Args:
-        file_path (str): Path to the JSON file.
+        data_name (str): Data Name.
 
     Returns:
         np.ndarray: An array containing the x, y, z, roll, pitch, and yaw values.
@@ -17,10 +17,14 @@ def read_json_file(file_path: str) -> np.ndarray:
         ValueError: If the JSON data is invalid or if data cannot be converted to floats.
     """
     # Input type check
-    if not isinstance(file_path, str):
+    if not isinstance(data_name, str):
         raise TypeError(
-            f"Expected file_path to be a string, but got {type(file_path).__name__}"
+            f"Expected data_name to be a string, but got {type(data_name).__name__}"
         )
+
+    file_path = (
+        f"./public/data/{data_name}/trajectories/cartesian_position__trajectory.json"
+    )
 
     with open(file_path, "r") as file:
         data = json.load(file)
