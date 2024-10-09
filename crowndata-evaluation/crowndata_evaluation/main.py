@@ -18,7 +18,6 @@ app = FastAPI(
     redoc_url="/redoc/api/crowndata-api-python/crowndata-evaluation/",  # Custom path for ReDoc
 )
 
-# Ensure that these two routers have different prefixes
 app.include_router(metric_router, prefix="/v1/evaluation/metrics", tags=["Metrics"])
 app.include_router(
     compare_metric_router,

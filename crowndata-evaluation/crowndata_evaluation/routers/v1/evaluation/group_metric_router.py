@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from crowndata_evaluation.services.metric import get_action_consistency
-from crowndata_evaluation.services.utils import read_json_file
+from crowndata_evaluation.services.utils import read_trajectory_json
 
 group_metric_router = APIRouter()
 
@@ -37,8 +37,7 @@ async def group_metric(request: EvaluationGroupMetricRequest):
     data = []
     action_consistencies = []
     for data_name in request.dataNames:
-        file_path = f"./public/data/{data_name}/trajectories/cartesian_position__trajectory.json"
-        data_item = read_json_file(file_path)
+        data_item = read_trajectory_json(data_name=data_name)
         action_consistency = get_action_consistency(data=data_item)
         action_consistencies.append(action_consistency)
 
