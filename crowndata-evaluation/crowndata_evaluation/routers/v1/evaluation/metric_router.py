@@ -72,7 +72,7 @@ async def metric(request: EvaluationMetricRequest):
     if request.data is not None:
         data = request.data
     elif request.dataName is not None:
-        file_path = f"./example_data/data/{request.dataName}/trajectories/cartesian_position__trajectory.json"
+        file_path = f"./public/data/{request.dataName}/trajectories/cartesian_position__trajectory.json"
         data = read_json_file(file_path)
 
     action_consistency = get_action_consistency(data=data)
