@@ -7,7 +7,7 @@ def read_trajectory_json(data_name: str) -> np.ndarray:
     Reads a JSON file and returns the data as a NumPy array.
 
     Args:
-        data_name (str): Path to the JSON file.
+        data_name (str): Data Name.
 
     Returns:
         np.ndarray: An array containing the x, y, z, roll, pitch, and yaw values.
