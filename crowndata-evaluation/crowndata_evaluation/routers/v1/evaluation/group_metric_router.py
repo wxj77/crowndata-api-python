@@ -38,6 +38,7 @@ async def group_metric(request: EvaluationGroupMetricRequest):
     action_consistencies = []
     for data_name in request.dataNames:
         data_item = read_trajectory_json(data_name=data_name)
+        data.append(data_item)
         action_consistency = get_action_consistency(data=data_item)
         action_consistencies.append(action_consistency)
 
