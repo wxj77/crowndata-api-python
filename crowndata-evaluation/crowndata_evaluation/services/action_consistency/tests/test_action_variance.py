@@ -1,6 +1,3 @@
-from typing import Dict, Union
-import numpy as np
-from clustering import define_clusters
 
 
 class ActionVarianceCalculator:

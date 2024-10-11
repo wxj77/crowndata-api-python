@@ -1,5 +1,5 @@
 import numpy as np
-from clustering import define_clusters
+from crowndata_evaluation.services.action_consistency.clustering import define_clusters
 
 
 def test_define_clusters_basic():
