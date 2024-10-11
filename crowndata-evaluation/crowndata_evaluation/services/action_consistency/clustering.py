@@ -38,7 +38,7 @@ def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
     visited = np.zeros(len(data), dtype=bool)
 
     # TODO: manual writen clustering, replace to use sklearn.cluster.DBSCAN for better correctness
-    
+
     for i in range(len(data)):
         if not visited[i]:
             cluster = [i]
