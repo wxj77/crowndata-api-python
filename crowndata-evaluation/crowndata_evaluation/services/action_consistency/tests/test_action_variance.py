@@ -1,5 +1,3 @@
-
-
 class ActionVarianceCalculator:
     def __init__(self, epsilon: float):
         self.epsilon = epsilon
