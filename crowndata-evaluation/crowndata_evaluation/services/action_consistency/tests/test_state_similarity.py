@@ -1,6 +1,8 @@
 import pytest
 import numpy as np
-from state_similarity_calculator import StateSimilarityCalculator
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
 
 
 @pytest.fixture(scope="module")
