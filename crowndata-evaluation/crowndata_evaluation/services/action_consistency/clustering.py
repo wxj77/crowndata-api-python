@@ -17,7 +17,7 @@ def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
     Parameters
     ----------
     data : np.ndarray
-        State or action data to cluster.
+        State or action data to cluster. (x, y, z, rotation_x, rotation_y, rotation_z)
     epsilon : float
         The coverage distance for clustering.
 
@@ -29,6 +29,7 @@ def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
     """
     # TODO 1: Can we refer the scipy dbscan function to implement this?
     # TODO 2: Does the translation and rotation need to be considered separately to define clusters?
+    # should we count distance (x,y,z) and distance(rotation_x, rotation_y, rotation_z) separately?
     # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/cluster/_dbscan.py
     # paper: https://www.dbs.ifi.lmu.de/Publikationen/Papers/KDD-96.final.frame.pdf
 
@@ -36,6 +37,8 @@ def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
     cluster_idx = 0
     visited = np.zeros(len(data), dtype=bool)
 
+    # TODO: manual writen clustering, replace to use sklearn.cluster.DBSCAN for better correctness
+    
     for i in range(len(data)):
         if not visited[i]:
             cluster = [i]
