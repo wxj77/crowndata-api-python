@@ -1,5 +1,50 @@
 import numpy as np
 from typing import Dict
+import sklearn.cluster
+
+
+def sklearn_cluster_wrapper(
+    data: np.ndarray, class_name: str, args: Dict
+) -> Dict[int, np.ndarray]:
+    """Use sklearn.cluster to cluster data.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Data to cluster. (number of samples, state_dimension)
+    class_name : str
+        Name of the Clustering Algorithm class in sklearn.cluster to use.
+    args : Dict
+        Arguments to pass to the class or function.
+
+    Returns
+    -------
+    Dict[int, np.ndarray]
+        A dictionary where each key is a cluster index, and the value is the
+        states or actions in that cluster.
+    """
+    # check if given name is in sklearn.cluster
+    if not hasattr(sklearn.cluster, class_name):
+        raise ValueError(f"{class_name} is not in sklearn.cluster")
+    # check if class name has caps, otherwise it's a method
+    if class_name.islower():
+        raise ValueError(
+            f"{class_name} does not contain any uppercase letters. Use the class version instead of the method."
+        )
+
+    clusters = {}
+    clustering_alg = getattr(sklearn.cluster, class_name)(**args)
+    labels = clustering_alg.fit_predict(data)
+
+    for i, label in enumerate(labels):
+        if label not in clusters:
+            clusters[label] = []
+        clusters[label].append(i)
+
+    for key in clusters:
+        clusters[key] = data[clusters[key]]
+
+    return clusters
 
 
 def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:

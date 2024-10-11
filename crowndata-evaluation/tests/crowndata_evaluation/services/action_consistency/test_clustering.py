@@ -1,6 +1,9 @@
 import pytest
 import numpy as np
-from crowndata_evaluation.services.action_consistency.clustering import define_clusters
+from crowndata_evaluation.services.action_consistency.clustering import (
+    define_clusters,
+    sklearn_cluster_wrapper,
+)
 
 
 @pytest.mark.parametrize(
@@ -43,4 +46,48 @@ from crowndata_evaluation.services.action_consistency.clustering import define_c
 def test_define_clusters(data, epsilon, expected_num_clusters):
     """Test the define_clusters function."""
     clusters = define_clusters(data, epsilon)
+    assert len(clusters) == expected_num_clusters
+
+
+@pytest.mark.parametrize(
+    "data, method_name, args, expected_num_clusters",
+    [
+        # Edge case: large epsilon = 1 big cluster
+        [
+            np.ones((100, 6)),
+            "KMeans",
+            {
+                "n_clusters": 20,
+            },
+            1,
+        ],
+        # Edge case: small epsilon = 100 small clusters
+        [
+            np.random.rand(100, 6),
+            "KMeans",
+            {
+                "n_clusters": 20,
+            },
+            20,
+        ],
+        [
+            np.array(
+                [
+                    np.ones(6),
+                    np.ones(6),
+                    np.ones(6) + 1,
+                    np.ones(6) + 1 + 1e-5,
+                ]
+            ),
+            "KMeans",
+            {
+                "n_clusters": 4,
+            },
+            3,
+        ],
+    ],
+)
+def test_sklearn_cluster_wrapper(data, method_name, args, expected_num_clusters):
+    """Test the sklearn_cluster_wrapper function."""
+    clusters = sklearn_cluster_wrapper(data, method_name, args)
     assert len(clusters) == expected_num_clusters
