@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Dict
 import sklearn.cluster
-from scipy.spatial import cKDTree  # or sklearn.neighbors import KDTree
+from scipy.spatial import cKDTree
 
 
 def sklearn_cluster_wrapper(
@@ -98,7 +98,7 @@ def sklearn_cluster_wrapper(
 
 #     return clusters
 
-
+# Efficent NN search for clustering
 def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
     """Cluster data points based on epsilon distance using scipy's cKDTree.
 
