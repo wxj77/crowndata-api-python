@@ -74,17 +74,10 @@ def sklearn_cluster_wrapper(
 #         A dictionary where each key is a cluster index, and the value is the
 #         states or actions in that cluster.
 #     """
-#     # TODO 1: Can we refer the scipy dbscan function to implement this?
-#     # TODO 2: Does the translation and rotation need to be considered separately to define clusters?
-#     # should we count distance (x,y,z) and distance(rotation_x, rotation_y, rotation_z) separately?
-#     # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/cluster/_dbscan.py
-#     # paper: https://www.dbs.ifi.lmu.de/Publikationen/Papers/KDD-96.final.frame.pdf
 
 #     clusters = {}
 #     cluster_idx = 0
 #     visited = np.zeros(len(data), dtype=bool)
-
-#     # TODO: manual writen clustering, replace to use sklearn.cluster.DBSCAN for better correctness
 
 #     for i in range(len(data)):
 #         if not visited[i]:
@@ -97,6 +90,7 @@ def sklearn_cluster_wrapper(
 #             cluster_idx += 1
 
 #     return clusters
+
 
 # Efficent NN search for clustering
 def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
