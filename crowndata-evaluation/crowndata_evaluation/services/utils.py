@@ -1,6 +1,7 @@
 import json
 import numpy as np
 
+
 def read_trajectory_json(data_name: str) -> np.ndarray:
     """
     Reads a JSON file and returns the data as a NumPy array.
