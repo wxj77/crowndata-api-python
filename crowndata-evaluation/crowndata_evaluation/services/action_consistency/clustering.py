@@ -33,6 +33,7 @@ def sklearn_cluster_wrapper(
             f"{class_name} does not contain any uppercase letters. Use the class version instead of the method."
         )
 
+    # TODO: Edge case empty data
     clusters = {}
     clustering_alg = getattr(sklearn.cluster, class_name)(**args)
     labels = clustering_alg.fit_predict(data)
