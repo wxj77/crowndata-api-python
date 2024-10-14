@@ -1,5 +1,5 @@
 # import pytest
-# from crowndata_evaluation.services.action_consistency.state_similarity_calculator import StateSimilarityCalculator 
+# from crowndata_evaluation.services.action_consistency.state_similarity_calculator import StateSimilarityCalculator
 # import numpy as np
 
 # @pytest.mark.parametrize(
