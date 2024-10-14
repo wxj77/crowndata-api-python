@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Dict
 import sklearn.cluster
+from scipy.spatial import cKDTree # or sklearn.neighbors import KDTree
 
 
 def sklearn_cluster_wrapper(
@@ -46,52 +47,109 @@ def sklearn_cluster_wrapper(
 
     return clusters
 
+# # TODO: add a name to the function
+# def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
+#     r"""
+#     Define clusters for a set of states or actions based on epsilon distance.
+
+#     For each state/action ``x_i``, we define a cluster ``C(x_i)`` as:
+
+#     .. math::
+#         C(x_i) = \{ x_j | \|x_i - x_j\| \leq \epsilon \}
+
+#     where :math:`\|x_i - x_j\|` is the Euclidean distance between state/action
+#     ``x_i`` and ``x_j``.
+
+#     Parameters
+#     ----------
+#     data : np.ndarray
+#         State or action data to cluster. (x, y, z, rotation_x, rotation_y, rotation_z)
+#     epsilon : float
+#         The coverage distance for clustering.
+
+#     Returns
+#     -------
+#     Dict[int, np.ndarray]
+#         A dictionary where each key is a cluster index, and the value is the
+#         states or actions in that cluster.
+#     """
+#     # TODO 1: Can we refer the scipy dbscan function to implement this?
+#     # TODO 2: Does the translation and rotation need to be considered separately to define clusters?
+#     # should we count distance (x,y,z) and distance(rotation_x, rotation_y, rotation_z) separately?
+#     # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/cluster/_dbscan.py
+#     # paper: https://www.dbs.ifi.lmu.de/Publikationen/Papers/KDD-96.final.frame.pdf
+
+#     clusters = {}
+#     cluster_idx = 0
+#     visited = np.zeros(len(data), dtype=bool)
+
+#     # TODO: manual writen clustering, replace to use sklearn.cluster.DBSCAN for better correctness
+
+#     for i in range(len(data)):
+#         if not visited[i]:
+#             cluster = [i]
+#             for j in range(i + 1, len(data)):
+#                 if np.linalg.norm(data[i] - data[j]) <= epsilon:
+#                     cluster.append(j)
+#                     visited[j] = True
+#             clusters[cluster_idx] = data[cluster]
+#             cluster_idx += 1
+
+#     return clusters
 
 def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
-    r"""
-    Define clusters for a set of states or actions based on epsilon distance.
+    """
+    Cluster states or actions based on epsilon distance using scipy's cKDTree.
 
-    For each state/action ``x_i``, we define a cluster ``C(x_i)`` as:
-
-    .. math::
-        C(x_i) = \{ x_j | \|x_i - x_j\| \leq \epsilon \}
-
-    where :math:`\|x_i - x_j\|` is the Euclidean distance between state/action
-    ``x_i`` and ``x_j``.
+    This function groups data points (states or actions) into clusters where
+    points within each cluster are at most 'epsilon' distance apart.
 
     Parameters
     ----------
     data : np.ndarray
-        State or action data to cluster. (x, y, z, rotation_x, rotation_y, rotation_z)
+        State or action data to cluster. Shape: (n_samples, n_features)
     epsilon : float
-        The coverage distance for clustering.
+        The maximum distance between two points to be considered in the same cluster.
 
     Returns
     -------
     Dict[int, np.ndarray]
         A dictionary where each key is a cluster index, and the value is the
-        states or actions in that cluster.
+        states or actions in that cluster, sorted for consistency.
+
+    Notes
+    -----
+    This implementation uses scipy's cKDTree for efficient nearest neighbor searches.
     """
-    # TODO 1: Can we refer the scipy dbscan function to implement this?
-    # TODO 2: Does the translation and rotation need to be considered separately to define clusters?
-    # should we count distance (x,y,z) and distance(rotation_x, rotation_y, rotation_z) separately?
-    # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/cluster/_dbscan.py
-    # paper: https://www.dbs.ifi.lmu.de/Publikationen/Papers/KDD-96.final.frame.pdf
-
-    clusters = {}
-    cluster_idx = 0
+    if len(data) == 0:
+        return {} 
+    
+    tree = cKDTree(data)
+    neighbors = tree.query_ball_tree(tree, r=epsilon)
+    
+    clusters: Dict[int, np.ndarray] = {}
     visited = np.zeros(len(data), dtype=bool)
-
-    # TODO: manual writen clustering, replace to use sklearn.cluster.DBSCAN for better correctness
+    cluster_idx = 0
 
     for i in range(len(data)):
         if not visited[i]:
-            cluster = [i]
-            for j in range(i + 1, len(data)):
-                if np.linalg.norm(data[i] - data[j]) <= epsilon:
-                    cluster.append(j)
-                    visited[j] = True
-            clusters[cluster_idx] = data[cluster]
+            cluster_points = []
+            stack = [i]
+            visited[i] = True
+
+            while stack:
+                current = stack.pop()
+                cluster_points.append(current)
+                
+                for neighbor in neighbors[current]:
+                    if not visited[neighbor]:
+                        visited[neighbor] = True
+                        stack.append(neighbor)
+            
+            # Sort cluster points based on their indices
+            cluster_points.sort()
+            # Use sorted indices to get sorted data points
+            clusters[cluster_idx] = data[cluster_points]
             cluster_idx += 1
 
     return clusters
