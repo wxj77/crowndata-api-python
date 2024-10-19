@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from crowndata_evaluation.services.group_compare_metric import get_similarity_score
-from crowndata_evaluation.services.utils import read_trajectory_json
 
 group_compare_metric_router = APIRouter()
 
@@ -42,19 +40,7 @@ async def group_compare_metric(request: EvaluationGroupCompareMetricRequest):
             status_code=400,
             detail="Provide more than 3 data names in 'dataNames2'.",
         )
-
-    data1 = []
-    for data_name in request.dataNames1:
-        data_item = read_trajectory_json(data_name=data_name)
-        data1.append(data_item)
-
-    data2 = []
-    for data_name in request.dataNames2:
-        data_item = read_trajectory_json(data_name=data_name)
-        data2.append(data_item)
-
-    similarity_score = get_similarity_score(data1=data1, data2=data2)
-
+    # TODO: what does group mean?
     return {
-        "similarityScore": round(similarity_score, 4),
+        "similarityScore": -1,
     }

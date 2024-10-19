@@ -2,7 +2,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from crowndata_evaluation.services.utils import read_trajectory_json
-from crowndata_evaluation.services.compare_metric import dual_state_similarity
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
 
 compare_metric_router = APIRouter()
 
@@ -129,12 +131,13 @@ async def compare_metric(request: EvaluationCompareMetricRequest):
             status_code=400, detail="Both data1 and data2 must be provided."
         )
 
+    ssc = StateSimilarityCalculator(epsilon=0.01)
     # Ensure data1 and data2 are correctly formatted and non-empty
-    similarity_score, cosine_similarity_score = dual_state_similarity(
-        traj_a=data1, traj_b=data2, n_clusters=5, random_state=42
+    global_similarities = ssc.compute_similarity(
+        trajectories={request.dataName1: data1, request.dataName2: data2}
     )
 
     return {
-        "similarityScore": round(similarity_score, 4),
-        "cosineSimilarityScore": round(cosine_similarity_score, 4),
+        "similarityScore": round(global_similarities, 4),
+        "cosineSimilarityScore": round(global_similarities, 4),
     }
