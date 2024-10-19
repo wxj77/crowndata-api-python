@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
-from crowndata_evaluation.services.metric import get_action_consistency
+from crowndata_evaluation.services.action_consistency.action_variance_calculator import (
+    ActionVarianceCalculator,
+)
 from crowndata_evaluation.services.utils import read_trajectory_json
 
 metric_router = APIRouter()
@@ -74,7 +76,8 @@ async def metric(request: EvaluationMetricRequest):
     elif request.dataName is not None:
         data = read_trajectory_json(data_name=request.dataName)
 
-    action_consistency = get_action_consistency(data=data)
+    avc = ActionVarianceCalculator(epsilon=0.1)
+    action_consistency = avc.calculate_action_variance(data)
 
     return {
         "actionConsistency": round(action_consistency, 4),

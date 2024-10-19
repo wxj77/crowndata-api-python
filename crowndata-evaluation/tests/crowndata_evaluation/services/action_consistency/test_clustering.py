@@ -86,7 +86,7 @@ def test_define_clusters(data, epsilon, expected_num_clusters):
             },
             3,
         ],
-        #TODO: Edge case: empty data
+        # TODO: Edge case: empty data
     ],
 )
 def test_sklearn_cluster_wrapper(data, method_name, args, expected_num_clusters):

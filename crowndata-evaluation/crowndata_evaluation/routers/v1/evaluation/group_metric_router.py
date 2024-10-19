@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from crowndata_evaluation.services.metric import get_action_consistency
+from crowndata_evaluation.services.action_consistency.action_variance_calculator import (
+    ActionVarianceCalculator,
+)
 from crowndata_evaluation.services.utils import read_trajectory_json
 
 group_metric_router = APIRouter()
@@ -33,23 +35,12 @@ async def group_metric(request: EvaluationGroupMetricRequest):
             status_code=400,
             detail="Provide more than 3 'dataNames'.",
         )
-
-    data = []
-    action_consistencies = []
+    avc = ActionVarianceCalculator(epsilon=0.1)
+    avg_action_consistency = 0
     for data_name in request.dataNames:
-        data_item = read_trajectory_json(data_name=data_name)
-        data.append(data_item)
-        action_consistency = get_action_consistency(data=data_item)
-        action_consistencies.append(action_consistency)
-
-    # Calculate the average of action consistencies
-    if action_consistencies:
-        average_action_consistency = sum(action_consistencies) / len(
-            action_consistencies
-        )
-    else:
-        average_action_consistency = 0
-
+        data_item = read_trajectory_json(data_name)
+        avg_action_consistency += avc.calculate_action_variance(data_item)
+    avg_action_consistency /= len(request.dataNames)
     return {
-        "averageActionConsistency": round(average_action_consistency, 4),
+        "averageActionConsistency": round(avg_action_consistency, 4),
     }
