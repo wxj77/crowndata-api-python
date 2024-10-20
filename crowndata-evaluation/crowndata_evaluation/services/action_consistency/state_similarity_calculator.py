@@ -16,30 +16,7 @@ class StateSimilarityCalculator:
     def __init__(self, epsilon: float):
         self.epsilon = epsilon  # Coverage distance for clustering
 
-    def compute_similarity(
-        self, trajectory: np.ndarray, trajectories: List[np.ndarray]
-    ) -> float:
-        """
-        Compute similarity between one trajectory to multiple trajectories group.
-
-        Parameters
-        ----------
-        trajectory : np.ndarray
-        trajectories : List[np.ndarray]
-
-        Returns:
-        -------
-        float
-            similarity score for single data
-        """
-        clusters = self._get_clusters(trajectories)
-
-        # Compare each trajectory with the defined clusters
-        return self._compute_trajectory_similarity(trajectory, clusters)
-
-    def _compute_trajectory_similarity(
-        self, trajectory: np.ndarray, clusters: Dict[int, np.ndarray]
-    ) -> float:
+    def compute_trajectory_similarity(self, trajectory: np.ndarray) -> float:
         """
         Compute similarity of a trajectory with respect to the clusters.
 
@@ -57,11 +34,14 @@ class StateSimilarityCalculator:
         float
             Similarity score between the trajectory and the clusters, in the range [0, 1].
         """
+        if self.clusters is None:
+            return 0
+
         total_matches = 0
         total_states = len(trajectory)
 
         for state in trajectory:
-            for cluster in clusters.values():
+            for cluster in self.clusters.values():
                 distances = np.linalg.norm(cluster - state, axis=1)
                 if np.any(
                     distances <= self.epsilon
@@ -70,11 +50,11 @@ class StateSimilarityCalculator:
                     break
 
         # Similarity is the ratio of matched states to total states
-        similarity = total_matches / total_states if total_states > 0 else 0
+        similarity = float(total_matches) / total_states if total_states > 0 else 0
 
         return similarity
 
-    def _get_clusters(self, trajectories: List[np.ndarray]) -> float:
+    def get_clusters(self, trajectories: List[np.ndarray]) -> float:
         """
         Compute similarity between one trajectory to multiple trajectories group.
 
@@ -90,4 +70,5 @@ class StateSimilarityCalculator:
         data points in that cluster.
         """
         all_states = np.vstack(trajectories)
-        return define_clusters(all_states, self.epsilon)
+        self.clusters = define_clusters(all_states, self.epsilon)
+        return self.clusters

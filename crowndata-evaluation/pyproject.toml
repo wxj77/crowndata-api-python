@@ -13,6 +13,9 @@ numpy = "^2.1.2"
 pandas = "^2.2.3"
 scikit-learn = "^1.5.2"
 httpx = "^0.27.2"
+fastdtw = "^0.3.4"
+shapesimilarity = "^1.0.0"
+frechetdist = "^0.6"
 
 
 [tool.poetry.group.dev.dependencies]

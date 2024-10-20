@@ -107,9 +107,10 @@ async def compare_metric(request: EvaluationCompareMetricRequest):
             status_code=400, detail="Both data1 and data2 must be provided."
         )
 
-    ssc = StateSimilarityCalculator(epsilon=0.01)
+    ssc = StateSimilarityCalculator(epsilon=0.5)
     data = [data1, data2]
-    similarities = [ssc.compute_similarity(data_item, data) for data_item in data]
+    ssc.get_clusters(data)
+    similarities = [ssc.compute_trajectory_similarity(data_item) for data_item in data]
 
     return {
         "similarityScore": round(np.mean(similarities), 4),
