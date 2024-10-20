@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from crowndata_evaluation.services.metric import get_action_consistency
-from crowndata_evaluation.services.utils import read_trajectory_json
+from crowndata_evaluation.services.utils import fetch_trajectory_json
 
 metric_router = APIRouter()
 
@@ -12,22 +12,10 @@ class EvaluationMetricRequest(BaseModel):
     data: Optional[List[List[float]]] = Field(
         None,
         example=[
-            [
-                3.83574843e-01,
-                7.34695271e-02,
-                5.51359415e-01,
-                -2.89342165e00,
-                -1.98712066e-01,
-                1.26990348e-01,
-            ],
-            [
-                3.83757949e-01,
-                7.34741762e-02,
-                5.52553594e-01,
-                -2.89334679e00,
-                -2.01124683e-01,
-                1.26930386e-01,
-            ],
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            [1.1, 2.1, 3.1, 4.1, 5.1, 6.1],
+            [0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
+            [0.1, 1.1, 2.1, 3.1, 4.1, 5.1],
         ],
     )
     dataName: Optional[str] = Field(None, example="droid_00000000")
@@ -72,7 +60,7 @@ async def metric(request: EvaluationMetricRequest):
     if request.data is not None:
         data = request.data
     elif request.dataName is not None:
-        data = read_trajectory_json(data_name=request.dataName)
+        data = fetch_trajectory_json(data_name=request.dataName)
 
     action_consistency = get_action_consistency(data=data)
 
