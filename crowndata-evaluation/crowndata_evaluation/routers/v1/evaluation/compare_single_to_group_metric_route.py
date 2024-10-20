@@ -39,7 +39,7 @@ async def compare_single_to_group_metric(request: EvaluationGroupCompareMetricRe
         )
 
     data_name = request.dataName
-    data_item = fetch_trajectory_json(data_name=data_name)
+    single_data = fetch_trajectory_json(data_name=data_name)
 
     data = []
     for data_name in request.dataNames:
