@@ -57,8 +57,14 @@ async def group_compare_metric(request: EvaluationGroupCompareMetricRequest):
         data2.append(data_item)
 
     ssc = StateSimilarityCalculator(epsilon=0.01)
-    similarities1 = [ssc.compute_similarity(data_item, data2) for data_item in data1]
-    similarities2 = [ssc.compute_similarity(data_item, data1) for data_item in data2]
+    ssc.get_clusters(data2)
+    similarities1 = [
+        ssc.compute_trajectory_similarity(data_item) for data_item in data1
+    ]
+    ssc.get_clusters(data1)
+    similarities2 = [
+        ssc.compute_trajectory_similarity(data_item) for data_item in data2
+    ]
 
     return {
         "similarityScore": round(

@@ -47,8 +47,9 @@ async def compare_single_to_group_metric(request: EvaluationGroupCompareMetricRe
         data.append(data_item)
 
     ssc = StateSimilarityCalculator(epsilon=0.01)
+    ssc.get_clusters(data)
     # Ensure data1 and data2 are correctly formatted and non-empty
-    similarity = ssc.compute_similarity(trajectory=single_data, trajectories=data)
+    similarity = ssc.compute_trajectory_similarity(single_data)
     return {
         "similarityScore": round(similarity, 4),
     }

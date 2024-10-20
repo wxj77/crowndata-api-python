@@ -51,7 +51,8 @@ async def group_metric(request: EvaluationGroupMetricRequest):
     avg_action_consistency /= len(request.dataNames)
 
     ssc = StateSimilarityCalculator(epsilon=0.01)
-    similarities = [ssc.compute_similarity(data_item, data) for data_item in data]
+    ssc.get_clusters(data)
+    similarities = [ssc.compute_trajectory_similarity(data_item) for data_item in data]
 
     return {
         "averageActionConsistency": round(avg_action_consistency, 4),

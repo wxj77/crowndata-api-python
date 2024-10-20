@@ -146,6 +146,34 @@ all = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "httpx (>
 standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "httpx (>=0.23.0)", "jinja2 (>=2.11.2)", "python-multipart (>=0.0.7)", "uvicorn[standard] (>=0.12.0)"]
 
 [[package]]
+name = "fastdtw"
+version = "0.3.4"
+description = "Dynamic Time Warping (DTW) algorithm with an O(N) time and memory complexity."
+optional = false
+python-versions = "*"
+files = [
+    {file = "fastdtw-0.3.4-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:28918c163dce9e736e09252a02073fce712bc4c7aa18f2a45d882cca84da2dbb"},
+    {file = "fastdtw-0.3.4.tar.gz", hash = "sha256:2350fa6ec36bcad186eaf81f46eff35181baf04e324f522de8aeb43d0243f64f"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
+name = "frechetdist"
+version = "0.6"
+description = "Calculate discrete Frechet distance"
+optional = false
+python-versions = "*"
+files = [
+    {file = "frechetdist-0.6-py3-none-any.whl", hash = "sha256:c451619f1de6739d57c13981c34725a603c1068953d099b8cb07fa08d64f1072"},
+    {file = "frechetdist-0.6.tar.gz", hash = "sha256:ab1d2592932cfa37e36a29e6df903592a366b86a91e395aa5866ad1cb53ad162"},
+]
+
+[package.dependencies]
+numpy = ">1.0"
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -730,6 +758,17 @@ doc = ["jupyterlite-pyodide-kernel", "jupyterlite-sphinx (>=0.13.1)", "jupytext"
 test = ["Cython", "array-api-strict (>=2.0)", "asv", "gmpy2", "hypothesis (>=6.30)", "meson", "mpmath", "ninja", "pooch", "pytest", "pytest-cov", "pytest-timeout", "pytest-xdist", "scikit-umfpack", "threadpoolctl"]
 
 [[package]]
+name = "shapesimilarity"
+version = "1.0.0"
+description = "Quantify the similarity between two shapes/curves"
+optional = false
+python-versions = "*"
+files = [
+    {file = "shapesimilarity-1.0.0-py3-none-any.whl", hash = "sha256:28f70c1142a2c05a45e2e2e365f687574b3cadbaf1160942e2b1f75e147b52f6"},
+    {file = "shapesimilarity-1.0.0.tar.gz", hash = "sha256:d83cc610219bbdd353b9d1f3df9768f6aa499742d29cbe67335ee4e781dbb563"},
+]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -822,4 +861,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "026406100d52f3a47deb62beccb74f7e568af4fc54f7159a50cd0e034850bd8e"
+content-hash = "ace4e91b2c4d8c20b42cb9e1316b761858dc9e8f0ab65243f450b0bac5d379d2"

@@ -38,10 +38,10 @@ def test_state_similarity_single_trajectory(epsilon, generate_random_data):
 
     # Initialize StateSimilarityCalculator with the given epsilon
     calc = StateSimilarityCalculator(epsilon)
+    calc.get_clusters([data1])
 
     # Compute similarity for the dataset
-    similarity = calc.compute_similarity(data1, [data1])
-    print("ssssss", similarity)
+    similarity = calc.compute_trajectory_similarity(data1)
 
     # Ensure similarity score is within the valid range [0, 1]
     assert (
@@ -65,9 +65,10 @@ def test_combined_trajectory_similarity(epsilon, generate_random_data):
 
     # Initialize StateSimilarityCalculator with the given epsilon
     calc = StateSimilarityCalculator(epsilon)
+    calc.get_clusters(data)
 
     # Combine both datasets and compute similarity
-    similarities = [calc.compute_similarity(data_item, data) for data_item in data]
+    similarities = [calc.compute_trajectory_similarity(data_item) for data_item in data]
 
     for simlarity in similarities:
         # Ensure combined similarity score is within the valid range [0, 1]
@@ -89,9 +90,10 @@ def test_empty_data_similarity():
 
     # Initialize StateSimilarityCalculator with a fixed epsilon value
     calc = StateSimilarityCalculator(epsilon=0.5)
+    calc.get_clusters([empty_data])
 
     # Compute similarity for the empty dataset
-    similarity = calc.compute_similarity(empty_data, [empty_data])
+    similarity = calc.compute_trajectory_similarity(empty_data)
 
     # Ensure the similarity score is 0 for the empty dataset
     assert (
