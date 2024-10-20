@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, Union
+from typing import List, Dict
 from crowndata_evaluation.services.action_consistency.clustering import define_clusters
 
 
@@ -17,40 +17,25 @@ class StateSimilarityCalculator:
         self.epsilon = epsilon  # Coverage distance for clustering
 
     def compute_similarity(
-        self, trajectories: Union[Dict[str, np.ndarray], np.ndarray]
+        self, trajectory: np.ndarray, trajectories: List[np.ndarray]
     ) -> float:
         """
-        Compute similarity among multiple trajectories or two trajectories based on epsilon clustering.
+        Compute similarity between one trajectory to multiple trajectories group.
 
         Parameters
         ----------
-        trajectories : Union[Dict[str, np.ndarray], np.ndarray]
-            A dictionary where keys are demo names and values are trajectories, or a single trajectory.
+        trajectory : np.ndarray
+        trajectories : List[np.ndarray]
 
-        Returns
+        Returns:
         -------
         float
-            Global similarity score across all trajectories or the similarity for a single trajectory.
+            similarity score for single data
         """
-        if isinstance(trajectories, np.ndarray):  # Single trajectory case
-            clusters = define_clusters(trajectories, self.epsilon)
-            return self._compute_trajectory_similarity(trajectories, clusters)
-        else:  # Multiple trajectories case (when passed as a dictionary)
-            all_states = np.vstack(list(trajectories.values()))
-            clusters = define_clusters(all_states, self.epsilon)
+        clusters = self._get_clusters(trajectories)
 
-            # Compare each trajectory with the defined clusters
-            similarities = {}
-            for name, traj in trajectories.items():
-                similarity = self._compute_trajectory_similarity(traj, clusters)
-                similarities[name] = similarity
-
-            # Global similarity: average similarity across all trajectories
-            global_similarity = (
-                np.mean(list(similarities.values())) if similarities else 0
-            )
-
-            return global_similarity
+        # Compare each trajectory with the defined clusters
+        return self._compute_trajectory_similarity(trajectory, clusters)
 
     def _compute_trajectory_similarity(
         self, trajectory: np.ndarray, clusters: Dict[int, np.ndarray]
@@ -88,3 +73,21 @@ class StateSimilarityCalculator:
         similarity = total_matches / total_states if total_states > 0 else 0
 
         return similarity
+
+    def _get_clusters(self, trajectories: List[np.ndarray]) -> float:
+        """
+        Compute similarity between one trajectory to multiple trajectories group.
+
+        Parameters
+        ----------
+        trajectories : List[np.ndarray]
+
+        Returns:
+        -------
+        clusters : dict
+        A dictionary where each key is a cluster label (integer) and the value
+        is an array of shape (n_samples_in_cluster, n_features) containing the
+        data points in that cluster.
+        """
+        all_states = np.vstack(trajectories)
+        return define_clusters(all_states, self.epsilon)

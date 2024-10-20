@@ -40,7 +40,8 @@ def test_state_similarity_single_trajectory(epsilon, generate_random_data):
     calc = StateSimilarityCalculator(epsilon)
 
     # Compute similarity for the dataset
-    similarity = calc.compute_similarity(data1)
+    similarity = calc.compute_similarity(data1, [data1])
+    print("ssssss", similarity)
 
     # Ensure similarity score is within the valid range [0, 1]
     assert (
@@ -60,19 +61,19 @@ def test_combined_trajectory_similarity(epsilon, generate_random_data):
     generate_random_data : fixture
         Provides the randomly generated data from the fixture.
     """
-    data1, data2 = generate_random_data
+    data = generate_random_data
 
     # Initialize StateSimilarityCalculator with the given epsilon
     calc = StateSimilarityCalculator(epsilon)
 
     # Combine both datasets and compute similarity
-    combined_data = np.vstack((data1, data2))
-    combined_similarity = calc.compute_similarity(combined_data)
+    similarities = [calc.compute_similarity(data_item, data) for data_item in data]
 
-    # Ensure combined similarity score is within the valid range [0, 1]
-    assert (
-        0 <= combined_similarity <= 1
-    ), f"Expected combined similarity to be between 0 and 1, but got {combined_similarity}"
+    for simlarity in similarities:
+        # Ensure combined similarity score is within the valid range [0, 1]
+        assert (
+            0 <= simlarity <= 1
+        ), f"Expected combined similarity to be between 0 and 1, but got {simlarity}"
 
 
 def test_empty_data_similarity():
@@ -90,7 +91,9 @@ def test_empty_data_similarity():
     calc = StateSimilarityCalculator(epsilon=0.5)
 
     # Compute similarity for the empty dataset
-    similarity = calc.compute_similarity(empty_data)
+    similarity = calc.compute_similarity(empty_data, [empty_data])
 
     # Ensure the similarity score is 0 for the empty dataset
-    assert similarity == 0, "Expected similarity for empty data to be 0"
+    assert (
+        pytest.approx(similarity) == 0
+    ), f"Expected similarity for empty data to be {similarity}"

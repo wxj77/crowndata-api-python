@@ -1,10 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
+import numpy as np
+from crowndata_evaluation.services.utils import fetch_trajectory_json
 from crowndata_evaluation.services.action_consistency.action_variance_calculator import (
     ActionVarianceCalculator,
 )
-from crowndata_evaluation.services.utils import read_trajectory_json
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
 
 group_metric_router = APIRouter()
 
@@ -37,10 +41,19 @@ async def group_metric(request: EvaluationGroupMetricRequest):
         )
     avc = ActionVarianceCalculator(epsilon=0.1)
     avg_action_consistency = 0
+
+    data = []
     for data_name in request.dataNames:
-        data_item = read_trajectory_json(data_name)
+        data_item = fetch_trajectory_json(data_name=data_name)
+        data.append(data_item)
         avg_action_consistency += avc.calculate_action_variance(data_item)
+
     avg_action_consistency /= len(request.dataNames)
+
+    ssc = StateSimilarityCalculator(epsilon=0.01)
+    similarities = [ssc.compute_similarity(data_item, data) for data_item in data]
+
     return {
         "averageActionConsistency": round(avg_action_consistency, 4),
+        "averageSimilarityScore": round(np.mean(similarities), 4),
     }

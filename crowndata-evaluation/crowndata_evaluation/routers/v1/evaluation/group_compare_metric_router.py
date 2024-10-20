@@ -1,6 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
+import numpy as np
+from crowndata_evaluation.services.utils import fetch_trajectory_json
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
 
 group_compare_metric_router = APIRouter()
 
@@ -40,7 +45,23 @@ async def group_compare_metric(request: EvaluationGroupCompareMetricRequest):
             status_code=400,
             detail="Provide more than 3 data names in 'dataNames2'.",
         )
-    # TODO: what does group mean?
+
+    data1 = []
+    for data_name in request.dataNames1:
+        data_item = fetch_trajectory_json(data_name=data_name)
+        data1.append(data_item)
+
+    data2 = []
+    for data_name in request.dataNames2:
+        data_item = fetch_trajectory_json(data_name=data_name)
+        data2.append(data_item)
+
+    ssc = StateSimilarityCalculator(epsilon=0.01)
+    similarities1 = [ssc.compute_similarity(data_item, data2) for data_item in data1]
+    similarities2 = [ssc.compute_similarity(data_item, data1) for data_item in data2]
+
     return {
-        "similarityScore": -1,
+        "similarityScore": round(
+            np.mean([np.mean(similarities1), np.mean(similarities2)]), 4
+        ),
     }

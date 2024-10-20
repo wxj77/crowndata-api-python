@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Union, Dict
+from typing import Union, List
 from crowndata_evaluation.services.action_consistency.clustering import define_clusters
 
 
@@ -16,9 +16,7 @@ class ActionVarianceCalculator:
     def __init__(self, epsilon: float):
         self.epsilon = epsilon
 
-    def calculate_action_variance(
-        self, trajectories: Union[Dict[str, np.ndarray], np.ndarray]
-    ) -> float:
+    def calculate_action_variance(self, trajectories: List[np.ndarray]) -> float:
         """
         Calculate the action variance based on the formula:
         ActionVariance(D) = (1 / |D|) * sum((a - mean(a_cluster))^2)
@@ -26,7 +24,7 @@ class ActionVarianceCalculator:
 
         Parameters
         ----------
-        trajectories : Union[Dict[str, np.ndarray], np.ndarray]
+        trajectories : List[np.ndarray]
             A dictionary where keys are demo names and values are trajectories, or a single trajectory.
 
         Returns
@@ -37,12 +35,7 @@ class ActionVarianceCalculator:
         if len(trajectories) == 0 or all(len(traj) == 0 for traj in trajectories):
             return None
 
-        all_states = np.vstack([np.array(traj) for traj in trajectories])
-
-        if isinstance(trajectories, dict):
-            all_states = np.vstack([traj for traj in trajectories.values()])
-        else:
-            all_states = np.vstack([np.array(traj) for traj in trajectories])
+        all_states = np.vstack(trajectories)
 
         clusters = define_clusters(all_states, self.epsilon)
 
