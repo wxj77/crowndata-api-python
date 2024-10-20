@@ -9,6 +9,9 @@ from crowndata_evaluation.routers.v1.evaluation.group_metric_router import (
 from crowndata_evaluation.routers.v1.evaluation.group_compare_metric_router import (
     group_compare_metric_router,
 )
+from crowndata_evaluation.routers.v1.evaluation.compare_single_to_group_metric_route import (
+    compare_single_to_group_router,
+)
 
 app = FastAPI(
     title="Crowndata Evaluation API",
@@ -33,4 +36,9 @@ app.include_router(
     group_compare_metric_router,
     prefix="/v1/evaluation/group-compare-metrics",
     tags=["Group Compare Metrics"],
+)
+app.include_router(
+    compare_single_to_group_router,
+    prefix="/v1/evaluation/compare-single-to-group-metrics",
+    tags=["Compare Single to Groups Metrics"],
 )
