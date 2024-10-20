@@ -1,5 +1,6 @@
 import json
 import numpy as np
+from fastapi import HTTPException
 
 
 def read_trajectory_json(data_name: str) -> np.ndarray:
@@ -52,6 +53,49 @@ def read_trajectory_json(data_name: str) -> np.ndarray:
         )
 
     return xyzrpy_array
+
+
+def fetch_trajectory_json(data_name: str) -> np.ndarray:
+    """
+    Reads a JSON file and returns the data as a NumPy array.
+
+    Args:
+        data_name (str): Data Name.
+
+    Returns:
+        np.ndarray: An array containing the x, y, z, roll, pitch, and yaw values.
+
+    Raises:
+        HTTPException: If fetch failed.
+    """
+    # Your logic to read the JSON file/data
+    try:
+        return read_trajectory_json(data_name=data_name)
+
+    except TypeError as e:
+        # If the data doesn't exist, raise an HTTPException
+        raise HTTPException(status_code=400, detail=str(e))
+
+    except ValueError as e:
+        # If the data doesn't exist, raise an HTTPException
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
+
+    except FileNotFoundError:
+        # If the data doesn't exist, raise an HTTPException
+        raise HTTPException(
+            status_code=400,
+            detail="Data not exist",
+        )
+
+    except Exception as e:
+        # Optionally catch other exceptions and return a custom message
+        raise HTTPException(
+            status_code=500,
+            detail="Internal Server Error: " + str(e),
+        )
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
