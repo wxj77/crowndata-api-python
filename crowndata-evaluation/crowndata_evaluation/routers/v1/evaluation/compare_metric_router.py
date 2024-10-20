@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
-from crowndata_evaluation.services.utils import read_trajectory_json
+from crowndata_evaluation.services.utils import fetch_trajectory_json
 from crowndata_evaluation.services.compare_metric import dual_state_similarity
 
 compare_metric_router = APIRouter()
@@ -12,44 +12,20 @@ class EvaluationCompareMetricRequest(BaseModel):
     data1: Optional[List[List[float]]] = Field(
         None,
         example=[
-            [
-                3.83574843e-01,
-                7.34695271e-02,
-                5.51359415e-01,
-                -2.89342165e00,
-                -1.98712066e-01,
-                1.26990348e-01,
-            ],
-            [
-                3.83757949e-01,
-                7.34741762e-02,
-                5.52553594e-01,
-                -2.89334679e00,
-                -2.01124683e-01,
-                1.26930386e-01,
-            ],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
         ],
     )
     dataName1: Optional[str] = Field(None, example="droid_00000000")
     data2: Optional[List[List[float]]] = Field(
         None,
         example=[
-            [
-                4.83218133e-01,
-                7.00685307e-02,
-                2.66119927e-01,
-                3.01093650e00,
-                -4.27649707e-01,
-                2.29388833e-01,
-            ],
-            [
-                4.81317997e-01,
-                6.99858665e-02,
-                2.67044962e-01,
-                3.01118779e00,
-                -4.25343573e-01,
-                2.30850562e-01,
-            ],
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            [1.1, 2.1, 3.1, 4.1, 5.1, 6.1],
+            [0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
+            [0.1, 1.1, 2.1, 3.1, 4.1, 5.1],
         ],
     )
     dataName2: Optional[str] = Field(None, example="droid_00000001")
@@ -114,14 +90,14 @@ async def compare_metric(request: EvaluationCompareMetricRequest):
     if request.data1 is not None:
         data1 = request.data1
     elif request.dataName1 is not None:
-        data1 = read_trajectory_json(data_name=request.dataName1)
+        data1 = fetch_trajectory_json(data_name=request.dataName1)
 
     # Handle data2
     data2 = None
     if request.data2 is not None:
         data2 = request.data2
     elif request.dataName2 is not None:
-        data2 = read_trajectory_json(data_name=request.dataName2)
+        data2 = fetch_trajectory_json(data_name=request.dataName2)
 
     # Ensure data is available before processing
     if data1 is None or data2 is None:
