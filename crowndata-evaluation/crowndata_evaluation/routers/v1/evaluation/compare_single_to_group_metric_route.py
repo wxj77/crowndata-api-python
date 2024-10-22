@@ -8,7 +8,7 @@ from crowndata_evaluation.services.action_consistency.state_similarity_calculato
 )
 from crowndata_evaluation.services.shape.geometry import (
     calculate_frechet_similarity,
-    calculate_disparity_similarity,
+    calculate_disparity_based_similarity,
 )
 
 compare_single_to_group_router = APIRouter()
@@ -26,7 +26,7 @@ class EvaluationGroupCompareMetricRequest(BaseModel):
 class EvaluationGroupCompareMetricResponse(BaseModel):
     stateSimilarityScore: Optional[float]
     frechetSimilarityScore: Optional[float]
-    disparitySimilarityScore: Optional[float]
+    disparityBasedSimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -69,15 +69,17 @@ async def compare_single_to_group_metric(request: EvaluationGroupCompareMetricRe
         frechet_similarity_scores.append(frechet_similarity_score)
 
     # Disparity Similarity
-    disparity_similarity_scores = []
+    disparity_based_similarity_scores = []
     for xyz_array_item in xyz_data:
-        disparity_similarity_score = calculate_disparity_similarity(
+        disparity_based_similarity_score = calculate_disparity_based_similarity(
             xyz_array, xyz_array_item
         )
-        disparity_similarity_scores.append(disparity_similarity_score)
+        disparity_based_similarity_scores.append(disparity_based_similarity_score)
 
     return {
         "stateSimilarityScore": round(similarity, 4),
         "frechetSimilarityScore": round(np.nanmean(frechet_similarity_scores), 4),
-        "disparitySimilarityScore": round(np.nanmean(disparity_similarity_scores), 4),
+        "disparityBasedSimilarityScore": round(
+            np.nanmean(disparity_based_similarity_scores), 4
+        ),
     }
