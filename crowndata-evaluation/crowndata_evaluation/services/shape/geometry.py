@@ -1,5 +1,4 @@
 import numpy as np
-from shapely import LineString, frechet_distance
 from typing import Dict
 
 
@@ -7,7 +6,29 @@ def euclidean_distance(p1, p2):
     return np.linalg.norm(np.array(p1) - np.array(p2))
 
 
-def frechet_distance_3d(P, Q):
+def calculate_curve_length_3d(points):
+    """
+    Calculates the length of a 3D curve defined by a list of 3D points.
+
+    Args:
+        points (list of tuples/lists): A list of 3D points (x, y, z).
+
+    Returns:
+        float: The total length of the curve.
+    """
+    # Convert points to a numpy array for easier manipulation
+    trajectory = np.array(points)
+
+    # Calculate the pairwise Euclidean distances between consecutive points
+    distances = np.linalg.norm(np.diff(trajectory, axis=0), axis=1)
+
+    # Sum the distances to get the total length of the curve
+    curve_length = np.sum(distances)
+
+    return curve_length
+
+
+def calculate_frechet_distance_3d(P, Q):
     """
     Compute the discrete Fréchet distance between two 3D curves P and Q.
     P and Q are lists of 3D points.
@@ -71,15 +92,14 @@ def frechet_similarity(trajectory_a: np.ndarray, trajectory_b: np.ndarray) -> fl
     trajectory_a = trajectory_a - np.mean(trajectory_a, axis=0)
     trajectory_b = trajectory_b - np.mean(trajectory_b, axis=0)
 
-    # Convert trajectories into LineString objects
-    line_a = LineString(trajectory_a)
-    line_b = LineString(trajectory_b)
-
     # Compute Fréchet distance between the two trajectories
-    frechet_dist = frechet_distance_3d(trajectory_a, trajectory_b)
+    frechet_dist = calculate_frechet_distance_3d(trajectory_a, trajectory_b)
 
     # Compute the normalized similarity score
-    length_product = np.sqrt(line_a.length * line_b.length)
+    length_product = np.sqrt(
+        calculate_curve_length_3d(trajectory_a)
+        * calculate_curve_length_3d(trajectory_b)
+    )
 
     # Calculate similarity using the given formula
     similarity = 1 - (frechet_dist / length_product)
