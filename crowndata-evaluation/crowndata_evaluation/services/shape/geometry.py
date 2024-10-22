@@ -2,6 +2,7 @@ import numpy as np
 from typing import Dict
 from scipy.interpolate import interp1d
 from scipy.spatial import procrustes
+from scipy.special import kl_div
 
 
 def euclidean_distance(p1, p2):
@@ -126,7 +127,7 @@ def calculate_disparity_similarity(
     trajectory_a: np.ndarray, trajectory_b: np.ndarray, length: int = 1000
 ) -> float:
     """
-    Compute the Fréchet similarity between two trajectories.
+    Compute the disparity similarity between two trajectories.
 
     Parameters
     ----------
@@ -139,12 +140,35 @@ def calculate_disparity_similarity(
     -------
     float
         A value between 0 and 1 representing the similarity, where 1 indicates identical trajectories.
-        Calculated as max(0, 1 - (Fréchet distance / sqrt(curve_length(a) * curve_length(b)))).
+        Calculated as 1 / (1 + disparity).
     """
     resample_a = interp1d_array(trajectory_a, length=length)
     resample_b = interp1d_array(trajectory_b, length=length)
     _, _, disparity = procrustes(resample_a, resample_b)
-    return disparity
+    return 1.0 / (1.0 + disparity)
+
+
+def calculate_kl_divergence_similarity(
+    trajectory_a: np.ndarray, trajectory_b: np.ndarray
+) -> float:
+    """
+    Calculate a similarity score based on KL divergence between two probability distributions.
+
+    Parameters
+    ----------
+    trajectory_a : np.ndarray
+        A Nx3 array representing the first trajectory.
+    trajectory_b : np.ndarray
+        A Nx3 array representing the second trajectory.
+
+    Returns
+    -------
+    float
+        A value between 0 and 1 representing the similarity, where 1 indicates identical trajectories.
+    """
+    similarity_score = 1 / (1 + kl_div(trajectory_a, trajectory_b))
+
+    return similarity_score
 
 
 def compute_statistics(arr: np.ndarray) -> Dict:
