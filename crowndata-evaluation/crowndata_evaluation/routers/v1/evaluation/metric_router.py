@@ -11,9 +11,9 @@ from crowndata_evaluation.services.action_consistency.action_variance_calculator
 )
 from crowndata_evaluation.services.shape.geometry import (
     compute_statistics,
+    calculate_curve_length_3d,
 )
 import numpy as np
-from shapely import LineString
 
 metric_router = APIRouter()
 
@@ -166,12 +166,12 @@ async def metric(request: EvaluationMetricRequest):
         v_statistics.get("std_dev"),
     )
 
-    #
-    line = LineString(xyz_array)
+    # Curve Length
+    curve_length = calculate_curve_length_3d(xyz_array)
 
     return {
         "actionConsistency": round(action_consistency, 4),
-        "curveLength": round(line.length, 4),
+        "curveLength": round(curve_length, 4),
         "xMin": round(x_min, 4),
         "xMax": round(x_max, 4),
         "xMean": round(x_mean, 4),
