@@ -123,11 +123,11 @@ def interp1d_array(array: np.ndarray, length: int):
     return array_resampled
 
 
-def calculate_disparity_similarity(
+def calculate_disparity_based_similarity(
     trajectory_a: np.ndarray, trajectory_b: np.ndarray, length: int = 1000
 ) -> float:
     """
-    Compute the disparity similarity between two trajectories.
+    Compute the disparity based similarity between two trajectories.
 
     Parameters
     ----------
