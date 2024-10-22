@@ -55,14 +55,13 @@ async def compare_single_to_group_metric(request: EvaluationGroupCompareMetricRe
     ssc.get_clusters(xyz_data)
     # Ensure data1 and data2 are correctly formatted and non-empty
     similarity = ssc.compute_trajectory_similarity(xyz_array)
-    
+
     # Frechet Similarity
-    frechet_similarity_scores = [] 
+    frechet_similarity_scores = []
     for xyz_array_item in xyz_data:
         frechet_similarity_score = frechet_similarity(xyz_array, xyz_array_item)
         frechet_similarity_scores.append(frechet_similarity_score)
-    
-    
+
     return {
         "stateSimilarityScore": round(similarity, 4),
         "frechetSimilarityScore": round(np.nanmean(frechet_similarity_scores), 4),
