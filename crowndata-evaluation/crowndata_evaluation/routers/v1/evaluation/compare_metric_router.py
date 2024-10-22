@@ -6,6 +6,7 @@ from crowndata_evaluation.services.utils import fetch_trajectory_json
 from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
     StateSimilarityCalculator,
 )
+from crowndata_evaluation.services.shape.geometry import frechet_similarity
 
 compare_metric_router = APIRouter()
 
@@ -59,7 +60,8 @@ class EvaluationCompareMetricRequest(BaseModel):
 
 # Response model
 class EvaluationCompareMetricResponse(BaseModel):
-    similarityScore: Optional[float]
+    stateSimilarityScore: Optional[float]
+    frechetSimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -107,11 +109,19 @@ async def compare_metric(request: EvaluationCompareMetricRequest):
             status_code=400, detail="Both data1 and data2 must be provided."
         )
 
-    ssc = StateSimilarityCalculator(epsilon=0.5)
-    data = [data1, data2]
-    ssc.get_clusters(data)
-    similarities = [ssc.compute_trajectory_similarity(data_item) for data_item in data]
+    xyz_array1 = np.array(data1)[:, :3]
+    xyz_array2 = np.array(data2)[:, :3]
+    ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
+    ssc.get_clusters([xyz_array2])
+    similarity1 = ssc.compute_trajectory_similarity(xyz_array1)
+    ssc.get_clusters([xyz_array1])
+    similarity2 = ssc.compute_trajectory_similarity(xyz_array2)
+    similarities = [similarity1, similarity2]
+
+    # Frechet Similarity
+    frechet_similarity_score = frechet_similarity(xyz_array1, xyz_array2)
 
     return {
-        "similarityScore": round(np.mean(similarities), 4),
+        "stateSimilarityScore": round(np.nanmean(similarities), 4),
+        "frechetSimilarityScore": round(frechet_similarity_score, 4),
     }

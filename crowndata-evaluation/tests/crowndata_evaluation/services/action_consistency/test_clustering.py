@@ -7,15 +7,15 @@ from crowndata_evaluation.services.action_consistency.clustering import (
 
 
 @pytest.mark.parametrize(
-    "data, epsilon, expected_num_clusters",
+    "data, r, expected_num_clusters",
     [
-        # Edge case: large epsilon = 1 big cluster
+        # Edge case: large r = 1 big cluster
         [
             np.random.rand(100, 6),
             10000,
             1,
         ],
-        # Edge case: small epsilon = 100 small clusters
+        # Edge case: small r = 100 small clusters
         [
             np.random.rand(100, 6),
             0,
@@ -43,9 +43,9 @@ from crowndata_evaluation.services.action_consistency.clustering import (
         ],
     ],
 )
-def test_define_clusters(data, epsilon, expected_num_clusters):
+def test_define_clusters(data, r, expected_num_clusters):
     """Test the define_clusters function."""
-    clusters = define_clusters(data, epsilon)
+    clusters = define_clusters(data, r)
     assert len(clusters) == expected_num_clusters
 
 

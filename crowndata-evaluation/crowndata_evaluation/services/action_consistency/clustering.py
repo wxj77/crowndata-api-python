@@ -49,17 +49,17 @@ def sklearn_cluster_wrapper(
     return clusters
 
 
-def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
-    """Cluster data points based on epsilon distance using scipy's cKDTree.
+def define_clusters(data: np.ndarray, r: float) -> Dict[int, np.ndarray]:
+    """Cluster data points based on r distance using scipy's cKDTree.
 
     This algorithm groups data points into clusters where points within each
-    cluster are at most 'epsilon' distance apart.
+    cluster are at most 'r' distance apart.
 
     Parameters
     ----------
     data : array-like of shape (n_samples, n_features)
         The input data to cluster.
-    epsilon : float
+    r : float
         The maximum distance between two samples for them to be considered
         as in the same neighborhood.
 
@@ -78,7 +78,7 @@ def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
     The algorithm can be described mathematically as follows:
 
     1. For each point x_i in the dataset X:
-       - Find all points x_j such that ||x_i - x_j|| <= epsilon
+       - Find all points x_j such that ||x_i - x_j|| <= r
        - These points form a neighborhood N_i
 
     2. A cluster C_k is formed by the union of neighborhoods that intersect:
@@ -89,8 +89,8 @@ def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
     Examples
     --------
     >>> data = np.array([[1, 1, 1, 1, 1, 1], [1.5, 1, 1, 1, 1, 1]])
-    >>> epsilon = 1
-    >>> define_clusters(data, epsilon)
+    >>> r = 1
+    >>> define_clusters(data, r)
     {0: array([[1, 1, 1, 1, 1, 1],
                [1.5, 1, 1, 1, 1, 1]])}
     """
@@ -99,7 +99,7 @@ def define_clusters(data: np.ndarray, epsilon: float) -> Dict[int, np.ndarray]:
         return {}
 
     tree = cKDTree(data)
-    neighbors = tree.query_ball_tree(tree, r=epsilon)
+    neighbors = tree.query_ball_tree(tree, r=r)
 
     clusters: Dict[int, np.ndarray] = {}
     visited = np.zeros(len(data), dtype=bool)
