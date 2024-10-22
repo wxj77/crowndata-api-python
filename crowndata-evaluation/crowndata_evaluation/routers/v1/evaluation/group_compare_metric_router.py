@@ -22,7 +22,7 @@ class EvaluationGroupCompareMetricRequest(BaseModel):
 
 # Response model
 class EvaluationGroupCompareMetricResponse(BaseModel):
-    similarityScore: Optional[float]
+    stateSimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -47,27 +47,31 @@ async def group_compare_metric(request: EvaluationGroupCompareMetricRequest):
         )
 
     data1 = []
+    xyz_data1 = []
     for data_name in request.dataNames1:
         data_item = fetch_trajectory_json(data_name=data_name)
         data1.append(data_item)
+        xyz_data1.append(data_item[:, :3])
 
     data2 = []
+    xyz_data2 = []
     for data_name in request.dataNames2:
         data_item = fetch_trajectory_json(data_name=data_name)
         data2.append(data_item)
+        xyz_data2.append(data_item[:, :3])
 
-    ssc = StateSimilarityCalculator(epsilon=0.01)
-    ssc.get_clusters(data2)
+    ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
+    ssc.get_clusters(xyz_data2)
     similarities1 = [
-        ssc.compute_trajectory_similarity(data_item) for data_item in data1
+        ssc.compute_trajectory_similarity(xyz_array) for xyz_array in xyz_data1
     ]
-    ssc.get_clusters(data1)
+    ssc.get_clusters(xyz_data1)
     similarities2 = [
-        ssc.compute_trajectory_similarity(data_item) for data_item in data2
+        ssc.compute_trajectory_similarity(xyz_array) for xyz_array in xyz_data2
     ]
 
     return {
-        "similarityScore": round(
-            np.mean([np.mean(similarities1), np.mean(similarities2)]), 4
+        "stateSimilarityScore": round(
+            np.nanmean([np.nanmean(similarities1), np.nanmean(similarities2)]), 4
         ),
     }

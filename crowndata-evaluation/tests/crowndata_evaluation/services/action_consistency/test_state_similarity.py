@@ -22,22 +22,22 @@ def generate_random_data():
     return data1, data2
 
 
-@pytest.mark.parametrize("epsilon", [0.5, 1.0])
-def test_state_similarity_single_trajectory(epsilon, generate_random_data):
+@pytest.mark.parametrize("r", [0.5, 1.0])
+def test_state_similarity_single_trajectory(r, generate_random_data):
     """
     Test the state similarity for a single randomly generated trajectory.
 
     Parameters
     ----------
-    epsilon : float
-        The epsilon value used by the StateSimilarityCalculator to compute similarity.
+    r : float
+        The r value used by the StateSimilarityCalculator to compute similarity.
     generate_random_data : fixture
         Provides the randomly generated data from the fixture.
     """
     data1, _ = generate_random_data
 
-    # Initialize StateSimilarityCalculator with the given epsilon
-    calc = StateSimilarityCalculator(epsilon)
+    # Initialize StateSimilarityCalculator with the given r
+    calc = StateSimilarityCalculator(r=r)
     calc.get_clusters([data1])
 
     # Compute similarity for the dataset
@@ -49,22 +49,22 @@ def test_state_similarity_single_trajectory(epsilon, generate_random_data):
     ), f"Expected similarity to be between 0 and 1, but got {similarity}"
 
 
-@pytest.mark.parametrize("epsilon", [0.5])
-def test_combined_trajectory_similarity(epsilon, generate_random_data):
+@pytest.mark.parametrize("r", [0.5])
+def test_combined_trajectory_similarity(r, generate_random_data):
     """
     Test similarity between two combined randomly generated trajectories.
 
     Parameters
     ----------
-    epsilon : float
-        The epsilon value used by the StateSimilarityCalculator to compute similarity.
+    r : float
+        The r value used by the StateSimilarityCalculator to compute similarity.
     generate_random_data : fixture
         Provides the randomly generated data from the fixture.
     """
     data = generate_random_data
 
-    # Initialize StateSimilarityCalculator with the given epsilon
-    calc = StateSimilarityCalculator(epsilon)
+    # Initialize StateSimilarityCalculator with the given r
+    calc = StateSimilarityCalculator(r=r)
     calc.get_clusters(data)
 
     # Combine both datasets and compute similarity
@@ -88,8 +88,8 @@ def test_empty_data_similarity():
     # Create an empty dataset
     empty_data = np.array([]).reshape(0, 6)
 
-    # Initialize StateSimilarityCalculator with a fixed epsilon value
-    calc = StateSimilarityCalculator(epsilon=0.5)
+    # Initialize StateSimilarityCalculator with a fixed r value
+    calc = StateSimilarityCalculator(r=0.5)
     calc.get_clusters([empty_data])
 
     # Compute similarity for the empty dataset

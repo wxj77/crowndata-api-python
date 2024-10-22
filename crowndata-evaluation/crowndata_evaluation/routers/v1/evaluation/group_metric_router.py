@@ -23,6 +23,7 @@ class EvaluationGroupMetricRequest(BaseModel):
 # Response model
 class EvaluationGroupMetricResponse(BaseModel):
     averageActionConsistency: Optional[float]
+    averageStateSimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -39,22 +40,49 @@ async def group_metric(request: EvaluationGroupMetricRequest):
             status_code=400,
             detail="Provide more than 3 'dataNames'.",
         )
-    avc = ActionVarianceCalculator(epsilon=0.1)
+    avc = ActionVarianceCalculator(r=0.01)
     avg_action_consistency = 0
 
     data = []
+    xyz_data = []
     for data_name in request.dataNames:
         data_item = fetch_trajectory_json(data_name=data_name)
         data.append(data_item)
+        xyz_data.append(data_item[:, :3])
         avg_action_consistency += avc.calculate_action_variance(data_item)
 
     avg_action_consistency /= len(request.dataNames)
 
-    ssc = StateSimilarityCalculator(epsilon=0.01)
-    ssc.get_clusters(data)
-    similarities = [ssc.compute_trajectory_similarity(data_item) for data_item in data]
+    ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
+
+    number_of_groups = 5
+    # Assuming xyz_data is a list, calculate group size
+    group_size = len(xyz_data) // number_of_groups
+
+    # Split xyz_data into 5 groups (xyz_groups will be a list of lists)
+    xyz_groups = [xyz_data[i::number_of_groups] for i in range(number_of_groups)]
+
+    # Iterate over the 5 groups and process them
+    group_similarities = []
+    similarities = []
+    for grp, group in enumerate(xyz_groups):
+        group_sim = []
+        for i, xyz_array in enumerate(group):
+            # Combine all other groups except the current group
+            remaining_data = []
+            for other_grp in range(number_of_groups):
+                if other_grp != grp:
+                    for item in xyz_groups[other_grp]:
+                        remaining_data.append(item)
+            ssc.get_clusters(remaining_data)
+            similarity = ssc.compute_trajectory_similarity(xyz_array)
+            group_sim.append(similarity)
+            similarities.append(similarity)
+        group_similarities.append(group_sim)
+
+    average_similarity_score = np.nanmean(similarities)
 
     return {
         "averageActionConsistency": round(avg_action_consistency, 4),
-        "averageSimilarityScore": round(np.mean(similarities), 4),
+        "averageStateSimilarityScore": round(average_similarity_score, 4),
     }

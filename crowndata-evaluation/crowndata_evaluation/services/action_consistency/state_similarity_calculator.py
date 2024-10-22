@@ -5,16 +5,26 @@ from crowndata_evaluation.services.action_consistency.clustering import define_c
 
 class StateSimilarityCalculator:
     """
-    A class to compute similarity between trajectories based on epsilon clustering.
+    A class to compute similarity between trajectories based on clustering.
+
+    Attributes
+    ----------
+    r : float
+        The coverage distance for clustering.
+    epsilon : float
+        The radius threshold for similarity comparison.
 
     Parameters
     ----------
-    epsilon : float
-        The coverage distance for clustering.
+    r : float, optional
+        The coverage distance for clustering. Default is 0.01.
+    epsilon : float, optional
+        Radius threshold for similarity comparison. Default is 0.1.
     """
 
-    def __init__(self, epsilon: float):
-        self.epsilon = epsilon  # Coverage distance for clustering
+    def __init__(self, r: float = 0.01, epsilon: float = 0.1):
+        self.r = r
+        self.epsilon = epsilon
 
     def compute_trajectory_similarity(self, trajectory: np.ndarray) -> float:
         """
@@ -70,5 +80,5 @@ class StateSimilarityCalculator:
         data points in that cluster.
         """
         all_states = np.vstack(trajectories)
-        self.clusters = define_clusters(all_states, self.epsilon)
+        self.clusters = define_clusters(all_states, self.r)
         return self.clusters
