@@ -6,7 +6,10 @@ from crowndata_evaluation.services.utils import fetch_trajectory_json
 from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
     StateSimilarityCalculator,
 )
-from crowndata_evaluation.services.shape.geometry import frechet_similarity
+from crowndata_evaluation.services.shape.geometry import (
+    calculate_frechet_similarity,
+    calculate_disparity_similarity,
+)
 
 compare_metric_router = APIRouter()
 
@@ -62,6 +65,7 @@ class EvaluationCompareMetricRequest(BaseModel):
 class EvaluationCompareMetricResponse(BaseModel):
     stateSimilarityScore: Optional[float]
     frechetSimilarityScore: Optional[float]
+    disparitySimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -119,9 +123,13 @@ async def compare_metric(request: EvaluationCompareMetricRequest):
     similarities = [similarity1, similarity2]
 
     # Frechet Similarity
-    frechet_similarity_score = frechet_similarity(xyz_array1, xyz_array2)
+    frechet_similarity_score = calculate_frechet_similarity(xyz_array1, xyz_array2)
+
+    # Disparity Similarity
+    disparity_similarity_score = calculate_disparity_similarity(xyz_array1, xyz_array2)
 
     return {
         "stateSimilarityScore": round(np.nanmean(similarities), 4),
         "frechetSimilarityScore": round(frechet_similarity_score, 4),
+        "disparitySimilarityScore": round(disparity_similarity_score, 4),
     }
