@@ -1,8 +1,20 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
-from crowndata_evaluation.services.metric import get_action_consistency
-from crowndata_evaluation.services.utils import fetch_trajectory_json
+from crowndata_evaluation.services.utils import (
+    fetch_trajectory_json,
+    fetch_trajectory_sample_rate,
+    default_sample_rate,
+)
+from crowndata_evaluation.services.action_consistency.action_variance_calculator import (
+    ActionVarianceCalculator,
+)
+from crowndata_evaluation.services.shape.geometry import (
+    compute_statistics,
+    calculate_trajectory_statistics,
+    calculate_curve_length_3d,
+)
+import numpy as np
 
 metric_router = APIRouter()
 
@@ -36,6 +48,31 @@ class EvaluationMetricRequest(BaseModel):
 # Response model
 class EvaluationMetricResponse(BaseModel):
     actionConsistency: Optional[float]
+    curveLength: float
+    xMin: float
+    xMax: float
+    xMean: float
+    xStdDev: float
+    yMin: float
+    yMax: float
+    yMean: float
+    yStdDev: float
+    zMin: float
+    zMax: float
+    zMean: float
+    zStdDev: float
+    rMin: float
+    rMax: float
+    rMean: float
+    rStdDev: float
+    thetaMin: float
+    thetaMax: float
+    thetaMean: float
+    thetaStdDev: float
+    vMin: float
+    vMax: float
+    vMean: float
+    vStdDev: float
 
 
 # POST endpoint for evaluating metrics
@@ -57,13 +94,52 @@ async def metric(request: EvaluationMetricRequest):
         )
 
     data = None
+    dt = None
+    sample_rate = default_sample_rate
     if request.data is not None:
         data = request.data
+        if len(data[0]) == 7:
+            dt = data[:, 6]
     elif request.dataName is not None:
         data = fetch_trajectory_json(data_name=request.dataName)
+        sample_rate = fetch_trajectory_sample_rate(data_name=request.dataName)
+    data = np.array(data)
 
-    action_consistency = get_action_consistency(data=data)
+    avc = ActionVarianceCalculator(r=0.1)
+    action_consistency = avc.calculate_action_variance(data)
+
+    xyz_array = data[:, :3]
+    trajectory_statistics = calculate_trajectory_statistics(
+        xyz_array=xyz_array,
+        dt=dt,
+        sample_rate=sample_rate,
+    )
 
     return {
         "actionConsistency": round(action_consistency, 4),
+        "curveLength": round(trajectory_statistics.get("curveLength"), 4),
+        "xMin": round(trajectory_statistics.get("xMin"), 4),
+        "xMax": round(trajectory_statistics.get("xMax"), 4),
+        "xMean": round(trajectory_statistics.get("xMean"), 4),
+        "xStdDev": round(trajectory_statistics.get("xStdDev"), 4),
+        "yMin": round(trajectory_statistics.get("yMin"), 4),
+        "yMax": round(trajectory_statistics.get("yMax"), 4),
+        "yMean": round(trajectory_statistics.get("yMean"), 4),
+        "yStdDev": round(trajectory_statistics.get("yStdDev"), 4),
+        "zMin": round(trajectory_statistics.get("zMin"), 4),
+        "zMax": round(trajectory_statistics.get("zMax"), 4),
+        "zMean": round(trajectory_statistics.get("zMean"), 4),
+        "zStdDev": round(trajectory_statistics.get("zStdDev"), 4),
+        "rMin": round(trajectory_statistics.get("rMin"), 4),
+        "rMax": round(trajectory_statistics.get("rMax"), 4),
+        "rMean": round(trajectory_statistics.get("rMean"), 4),
+        "rStdDev": round(trajectory_statistics.get("rStdDev"), 4),
+        "thetaMin": round(trajectory_statistics.get("thetaMin"), 4),
+        "thetaMax": round(trajectory_statistics.get("thetaMax"), 4),
+        "thetaMean": round(trajectory_statistics.get("thetaMean"), 4),
+        "thetaStdDev": round(trajectory_statistics.get("thetaStdDev"), 4),
+        "vMin": round(trajectory_statistics.get("vMin"), 4),
+        "vMax": round(trajectory_statistics.get("vMax"), 4),
+        "vMean": round(trajectory_statistics.get("vMean"), 4),
+        "vStdDev": round(trajectory_statistics.get("vStdDev"), 4),
     }

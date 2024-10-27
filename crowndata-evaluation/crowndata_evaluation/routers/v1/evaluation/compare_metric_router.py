@@ -1,8 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
+import numpy as np
 from crowndata_evaluation.services.utils import fetch_trajectory_json
-from crowndata_evaluation.services.compare_metric import dual_state_similarity
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
+from crowndata_evaluation.services.shape.geometry import (
+    calculate_frechet_similarity,
+    calculate_disparity_based_similarity,
+)
 
 compare_metric_router = APIRouter()
 
@@ -56,8 +63,9 @@ class EvaluationCompareMetricRequest(BaseModel):
 
 # Response model
 class EvaluationCompareMetricResponse(BaseModel):
-    similarityScore: Optional[float]
-    cosineSimilarityScore: Optional[float]
+    stateSimilarityScore: Optional[float]
+    frechetSimilarityScore: Optional[float]
+    disparityBasedSimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -105,12 +113,25 @@ async def compare_metric(request: EvaluationCompareMetricRequest):
             status_code=400, detail="Both data1 and data2 must be provided."
         )
 
-    # Ensure data1 and data2 are correctly formatted and non-empty
-    similarity_score, cosine_similarity_score = dual_state_similarity(
-        traj_a=data1, traj_b=data2, n_clusters=5, random_state=42
+    xyz_array1 = np.array(data1)[:, :3]
+    xyz_array2 = np.array(data2)[:, :3]
+    ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
+    ssc.get_clusters([xyz_array2])
+    similarity1 = ssc.compute_trajectory_similarity(xyz_array1)
+    ssc.get_clusters([xyz_array1])
+    similarity2 = ssc.compute_trajectory_similarity(xyz_array2)
+    similarities = [similarity1, similarity2]
+
+    # Frechet Similarity
+    frechet_similarity_score = calculate_frechet_similarity(xyz_array1, xyz_array2)
+
+    # Disparity Similarity
+    disparity_based_similarity_score = calculate_disparity_based_similarity(
+        xyz_array1, xyz_array2
     )
 
     return {
-        "similarityScore": round(similarity_score, 4),
-        "cosineSimilarityScore": round(cosine_similarity_score, 4),
+        "stateSimilarityScore": round(np.nanmean(similarities), 4),
+        "frechetSimilarityScore": round(frechet_similarity_score, 4),
+        "disparityBasedSimilarityScore": round(disparity_based_similarity_score, 4),
     }

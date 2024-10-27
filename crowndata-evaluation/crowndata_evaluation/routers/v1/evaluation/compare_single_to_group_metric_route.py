@@ -1,7 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
+import numpy as np
 from crowndata_evaluation.services.utils import fetch_trajectory_json
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
+from crowndata_evaluation.services.shape.geometry import (
+    calculate_frechet_similarity,
+    calculate_disparity_based_similarity,
+)
 
 compare_single_to_group_router = APIRouter()
 
@@ -16,7 +24,9 @@ class EvaluationGroupCompareMetricRequest(BaseModel):
 
 # Response model
 class EvaluationGroupCompareMetricResponse(BaseModel):
-    similarityScore: Optional[float]
+    stateSimilarityScore: Optional[float]
+    frechetSimilarityScore: Optional[float]
+    disparityBasedSimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -35,11 +45,41 @@ async def compare_single_to_group_metric(request: EvaluationGroupCompareMetricRe
         )
 
     data_name = request.dataName
-    data_item = fetch_trajectory_json(data_name=data_name)
+    single_data = fetch_trajectory_json(data_name=data_name)
+    xyz_array = single_data[:, :3]
 
     data = []
+    xyz_data = []
     for data_name in request.dataNames:
         data_item = fetch_trajectory_json(data_name=data_name)
         data.append(data_item)
+        xyz_data.append(data_item[:, :3])
 
-    return {"similarityScore": 0.24}
+    ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
+    ssc.get_clusters(xyz_data)
+    # Ensure data1 and data2 are correctly formatted and non-empty
+    similarity = ssc.compute_trajectory_similarity(xyz_array)
+
+    # Frechet Similarity
+    frechet_similarity_scores = []
+    for xyz_array_item in xyz_data:
+        frechet_similarity_score = calculate_frechet_similarity(
+            xyz_array, xyz_array_item
+        )
+        frechet_similarity_scores.append(frechet_similarity_score)
+
+    # Disparity Similarity
+    disparity_based_similarity_scores = []
+    for xyz_array_item in xyz_data:
+        disparity_based_similarity_score = calculate_disparity_based_similarity(
+            xyz_array, xyz_array_item
+        )
+        disparity_based_similarity_scores.append(disparity_based_similarity_score)
+
+    return {
+        "stateSimilarityScore": round(similarity, 4),
+        "frechetSimilarityScore": round(np.nanmean(frechet_similarity_scores), 4),
+        "disparityBasedSimilarityScore": round(
+            np.nanmean(disparity_based_similarity_scores), 4
+        ),
+    }
