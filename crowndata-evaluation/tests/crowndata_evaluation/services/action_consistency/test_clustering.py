@@ -7,15 +7,15 @@ from crowndata_evaluation.services.action_consistency.clustering import (
 
 
 @pytest.mark.parametrize(
-    "data, epsilon, expected_num_clusters",
+    "data, r, expected_num_clusters",
     [
-        # Edge case: large epsilon = 1 big cluster
+        # Edge case: large r = 1 big cluster
         [
             np.random.rand(100, 6),
             10000,
             1,
         ],
-        # Edge case: small epsilon = 100 small clusters
+        # Edge case: small r = 100 small clusters
         [
             np.random.rand(100, 6),
             0,
@@ -43,16 +43,16 @@ from crowndata_evaluation.services.action_consistency.clustering import (
         ],
     ],
 )
-def test_define_clusters(data, epsilon, expected_num_clusters):
+def test_define_clusters(data, r, expected_num_clusters):
     """Test the define_clusters function."""
-    clusters = define_clusters(data, epsilon)
+    clusters = define_clusters(data, r)
     assert len(clusters) == expected_num_clusters
 
 
 @pytest.mark.parametrize(
     "data, method_name, args, expected_num_clusters",
     [
-        # Edge case: large epsilon = 1 big cluster
+        # Edge case: all data points are the same, expect 1 cluster regardless of n_clusters
         [
             np.ones((100, 6)),
             "KMeans",
@@ -61,7 +61,7 @@ def test_define_clusters(data, epsilon, expected_num_clusters):
             },
             1,
         ],
-        # Edge case: small epsilon = 100 small clusters
+        # Normal case: random data, expect the specified number of clusters
         [
             np.random.rand(100, 6),
             "KMeans",
@@ -70,6 +70,7 @@ def test_define_clusters(data, epsilon, expected_num_clusters):
             },
             20,
         ],
+        # Case with some duplicate points, expect fewer clusters than specified
         [
             np.array(
                 [
@@ -85,6 +86,7 @@ def test_define_clusters(data, epsilon, expected_num_clusters):
             },
             3,
         ],
+        # TODO: Edge case: empty data
     ],
 )
 def test_sklearn_cluster_wrapper(data, method_name, args, expected_num_clusters):

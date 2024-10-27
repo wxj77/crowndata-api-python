@@ -1,8 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from crowndata_evaluation.services.group_compare_metric import get_similarity_score
+import numpy as np
 from crowndata_evaluation.services.utils import fetch_trajectory_json
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
 
 group_compare_metric_router = APIRouter()
 
@@ -19,7 +22,7 @@ class EvaluationGroupCompareMetricRequest(BaseModel):
 
 # Response model
 class EvaluationGroupCompareMetricResponse(BaseModel):
-    similarityScore: Optional[float]
+    stateSimilarityScore: Optional[float]
 
 
 # POST endpoint for evaluating metrics
@@ -44,17 +47,31 @@ async def group_compare_metric(request: EvaluationGroupCompareMetricRequest):
         )
 
     data1 = []
+    xyz_data1 = []
     for data_name in request.dataNames1:
         data_item = fetch_trajectory_json(data_name=data_name)
         data1.append(data_item)
+        xyz_data1.append(data_item[:, :3])
 
     data2 = []
+    xyz_data2 = []
     for data_name in request.dataNames2:
         data_item = fetch_trajectory_json(data_name=data_name)
         data2.append(data_item)
+        xyz_data2.append(data_item[:, :3])
 
-    similarity_score = get_similarity_score(data1=data1, data2=data2)
+    ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
+    ssc.get_clusters(xyz_data2)
+    similarities1 = [
+        ssc.compute_trajectory_similarity(xyz_array) for xyz_array in xyz_data1
+    ]
+    ssc.get_clusters(xyz_data1)
+    similarities2 = [
+        ssc.compute_trajectory_similarity(xyz_array) for xyz_array in xyz_data2
+    ]
 
     return {
-        "similarityScore": round(similarity_score, 4),
+        "stateSimilarityScore": round(
+            np.nanmean([np.nanmean(similarities1), np.nanmean(similarities2)]), 4
+        ),
     }
