@@ -7,11 +7,12 @@ import os
 data_dir = os.getenv("DATA_DIR", "./public")
 
 
-def read_trajectory_json(data_name: str) -> np.ndarray:
+def read_trajectory_json(data_name: str, joint: str) -> np.ndarray:
     """
     Reads a JSON file and returns the data as a NumPy array.
     Args:
         data_name (str): Data Name.
+        joint: Joint Name.
     Returns:
         np.ndarray: An array containing the x, y, z, roll, pitch, and yaw values.
     Raises:
@@ -24,9 +25,7 @@ def read_trajectory_json(data_name: str) -> np.ndarray:
             f"Expected data_name to be a string, but got {type(data_name).__name__}"
         )
 
-    file_path = (
-        f"{data_dir}/data/{data_name}/trajectories/cartesian_position__trajectory.json"
-    )
+    file_path = f"{data_dir}/data/{data_name}/trajectories/{joint}__trajectory.json"
 
     with open(file_path, "r") as file:
         data = json.load(file)
@@ -42,12 +41,13 @@ def read_trajectory_json(data_name: str) -> np.ndarray:
     return xyzrpy_array
 
 
-def fetch_trajectory_json(data_name: str) -> np.ndarray:
+def fetch_trajectory_json(data_name: str, joint: str) -> np.ndarray:
     """
     Reads a JSON file and returns the data as a NumPy array.
 
     Args:
         data_name (str): Data Name.
+        joint(str): Joint Name.
 
     Returns:
         np.ndarray: An array containing the x, y, z, roll, pitch, and yaw values.
@@ -57,7 +57,7 @@ def fetch_trajectory_json(data_name: str) -> np.ndarray:
     """
     # Your logic to read the JSON file/data
     try:
-        return read_trajectory_json(data_name=data_name)
+        return read_trajectory_json(data_name=data_name, joint=joint)
 
     except TypeError as e:
         # If the data doesn't exist, raise an HTTPException
