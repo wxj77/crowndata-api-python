@@ -13,11 +13,5 @@ RUN pip install poetry
 # Install dependencies without dev dependencies
 RUN poetry install --no-dev
 
-# Expose port 8000 to the host
-EXPOSE 8000
-
-# Set environment variable
-ENV ENVIRONMENT=production
-
 # Command to run the application
 CMD ["poetry", "run", "uvicorn", "crowndata_evaluation.main:app", "--host", "0.0.0.0", "--port", "8000"]
