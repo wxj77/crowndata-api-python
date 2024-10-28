@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 
 from crowndata_evaluation.routers.v1.evaluation.metric_router import metric_router
 from crowndata_evaluation.routers.v1.evaluation.compare_metric_router import (
@@ -37,6 +39,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Custom middleware for adding "Access-Control-Allow-Origin" header globally
+class CustomCORSHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response: Response = await call_next(request)
+        # Add CORS headers to the response
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+
+        # Handle preflight requests
+        if request.method == "OPTIONS":
+            response = Response(status_code=204)
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Methods"] = "*"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+
+        return response
+
+
+app.add_middleware(CustomCORSHeaderMiddleware)
 
 
 app.include_router(metric_router, prefix="/v1/evaluation/metrics", tags=["Metrics"])
