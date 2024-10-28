@@ -2,7 +2,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import numpy as np
-from crowndata_evaluation.services.utils import fetch_trajectory_json
+from crowndata_evaluation.services.utils import (
+    fetch_trajectory_json,
+    fetch_trajectory_sample_rate,
+)
 from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
     StateSimilarityCalculator,
 )
@@ -10,23 +13,37 @@ from crowndata_evaluation.services.shape.geometry import (
     calculate_frechet_similarity,
     calculate_disparity_based_similarity,
 )
+from crowndata_evaluation.routers.v1.evaluation.helper import PoseData, JointData
+
 
 compare_single_to_group_router = APIRouter()
 
 
 # Request model
 class EvaluationGroupCompareMetricRequest(BaseModel):
-    dataName: Optional[str] = Field(None, example="droid_00000000")
-    dataNames: Optional[List[str]] = Field(
-        None, example=["droid_00000003", "droid_00000004", "droid_00000005"]
+    dataName: PoseData = Field(
+        None,
+        example={"dataName": "droid_00000000", "joints": ["cartesian_position"]},
+    )
+    dataNames: List[PoseData] = Field(
+        None,
+        example=[
+            {"dataName": "droid_00000000", "joints": ["cartesian_position"]},
+            {"dataName": "droid_00000001", "joints": ["cartesian_position"]},
+            {"dataName": "droid_00000002", "joints": ["cartesian_position"]},
+        ],
     )
 
 
 # Response model
-class EvaluationGroupCompareMetricResponse(BaseModel):
+class EvaluationGroupCompareMetric(BaseModel):
     stateSimilarityScore: Optional[float]
     frechetSimilarityScore: Optional[float]
     disparityBasedSimilarityScore: Optional[float]
+
+
+class EvaluationGroupCompareMetricResponse(BaseModel):
+    evaluationMetric: List[EvaluationGroupCompareMetric]
 
 
 # POST endpoint for evaluating metrics
@@ -44,42 +61,70 @@ async def compare_single_to_group_metric(request: EvaluationGroupCompareMetricRe
             detail="Provide more than 3 data names in 'dataNames'.",
         )
 
-    data_name = request.dataName
-    single_data = fetch_trajectory_json(data_name=data_name)
-    xyz_array = single_data[:, :3]
+    joint_length = len(request.dataName.joints)
+    data_list_single = []
+    if request.dataName is not None:
+        for k in request.dataName.joints:
+            data = fetch_trajectory_json(data_name=request.dataName.dataName, joint=k)
+            sample_rate = fetch_trajectory_sample_rate(
+                data_name=request.dataName.dataName
+            )
+            joint_data = JointData(data=data, sample_rate=sample_rate, name=k)
+            data_list_single.append(joint_data)
 
-    data = []
-    xyz_data = []
+    # Handle data
+    data_list = []
     for data_name in request.dataNames:
-        data_item = fetch_trajectory_json(data_name=data_name)
-        data.append(data_item)
-        xyz_data.append(data_item[:, :3])
+        if len(data_name.joints) - joint_length != 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Provide same number of joint in each data.",
+            )
+        for i, k in enumerate(data_name.joints):
+            data = fetch_trajectory_json(data_name=data_name.dataName, joint=k)
+            sample_rate = fetch_trajectory_sample_rate(data_name=data_name.dataName)
+            joint_data = JointData(data=data, sample_rate=sample_rate, name=k)
+            if len(data_list) <= i:
+                data_list.append([])
+            data_list[i].append(joint_data)
 
-    ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
-    ssc.get_clusters(xyz_data)
-    # Ensure data1 and data2 are correctly formatted and non-empty
-    similarity = ssc.compute_trajectory_similarity(xyz_array)
+    evaluation_metric = []
 
-    # Frechet Similarity
-    frechet_similarity_scores = []
-    for xyz_array_item in xyz_data:
-        frechet_similarity_score = calculate_frechet_similarity(
-            xyz_array, xyz_array_item
+    for i in range(len(data_list)):
+        xyz_array = data_list_single[i].data[:, :3]
+        xyz_data = [joint_data.data[:, :3] for joint_data in data_list[i]]
+
+        ssc = StateSimilarityCalculator(r=0.01, epsilon=0.1)
+        ssc.get_clusters(xyz_data)
+        # Ensure data1 and data2 are correctly formatted and non-empty
+        similarity = ssc.compute_trajectory_similarity(xyz_array)
+
+        # Frechet Similarity
+        frechet_similarity_scores = []
+        for xyz_array_item in xyz_data:
+            frechet_similarity_score = calculate_frechet_similarity(
+                xyz_array, xyz_array_item
+            )
+            frechet_similarity_scores.append(frechet_similarity_score)
+
+        # Disparity Similarity
+        disparity_based_similarity_scores = []
+        for xyz_array_item in xyz_data:
+            disparity_based_similarity_score = calculate_disparity_based_similarity(
+                xyz_array, xyz_array_item
+            )
+            disparity_based_similarity_scores.append(disparity_based_similarity_score)
+
+        evaluation_metric.append(
+            {
+                "stateSimilarityScore": float(round(similarity, 4)),
+                "frechetSimilarityScore": float(
+                    round(np.nanmean(frechet_similarity_scores), 4)
+                ),
+                "disparityBasedSimilarityScore": float(
+                    round(np.nanmean(disparity_based_similarity_scores), 4)
+                ),
+            }
         )
-        frechet_similarity_scores.append(frechet_similarity_score)
 
-    # Disparity Similarity
-    disparity_based_similarity_scores = []
-    for xyz_array_item in xyz_data:
-        disparity_based_similarity_score = calculate_disparity_based_similarity(
-            xyz_array, xyz_array_item
-        )
-        disparity_based_similarity_scores.append(disparity_based_similarity_score)
-
-    return {
-        "stateSimilarityScore": round(similarity, 4),
-        "frechetSimilarityScore": round(np.nanmean(frechet_similarity_scores), 4),
-        "disparityBasedSimilarityScore": round(
-            np.nanmean(disparity_based_similarity_scores), 4
-        ),
-    }
+    return {"evaluationMetric": evaluation_metric}
