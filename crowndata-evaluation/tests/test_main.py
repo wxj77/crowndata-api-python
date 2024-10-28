@@ -10,20 +10,35 @@ client = TestClient(app)
     [
         (
             {"dataName": "droid_00000000", "data": []},
-            400,
+            422,
             None,
         ),
-        ({"dataName": "not_exist_data"}, 400, {"detail": "Data not exist"}),
+        ({"dataName": "not_exist_data"}, 422, None),
         ({"dataName": 0}, 422, None),
-        ({"data": 0}, 422, None),
-        ({"dataName": "droid_00000000"}, 200, None),
+        ({"data": 0}, 400, None),
         (
             {
-                "data": [
-                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                    [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                    [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                "dataName": {
+                    "dataName": "droid_00000000",
+                    "joints": ["cartesian_position"],
+                }
+            },
+            200,
+            None,
+        ),
+        (
+            {
+                "dataList": [
+                    {
+                        "data": [
+                            [1, 2, 3, 4, 5, 6],
+                            [1.1, 2.1, 3.1, 4.1, 5.1, 6.1],
+                            [0, 1, 2, 3, 4, 5],
+                            [0.1, 1.1, 2.1, 3.1, 4.1, 5.1],
+                        ],
+                        "name": "cartesian_position",
+                        "sample_rate": 10,
+                    }
                 ]
             },
             200,
@@ -43,28 +58,53 @@ def test_metric_router(payload, expected_status, expected_response):
     [
         (
             {"dataName1": "droid_00000000", "data1": []},
-            400,
+            422,
             None,
         ),
         (
             {"dataName1": "not_exist_data", "dataName2": "droid_00000001"},
-            400,
-            {"detail": "Data not exist"},
+            422,
+            None,
         ),
-        ({"dataName1": "droid_00000000", "dataName2": "droid_00000001"}, 200, None),
         (
             {
-                "data1": [
-                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                    [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                    [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                "dataName1": {
+                    "dataName": "droid_00000000",
+                    "joints": ["cartesian_position"],
+                },
+                "dataName2": {
+                    "dataName": "droid_00000001",
+                    "joints": ["cartesian_position"],
+                },
+            },
+            200,
+            None,
+        ),
+        (
+            {
+                "dataList1": [
+                    {
+                        "data": [
+                            [0, 0, 0, 0, 0, 0],
+                            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                            [0, 0, 0, 0, 0, 0],
+                            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                        ],
+                        "name": "cartesian_position",
+                        "sample_rate": 10,
+                    }
                 ],
-                "data2": [
-                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                    [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                    [0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                "dataList2": [
+                    {
+                        "data": [
+                            [1, 2, 3, 4, 5, 6],
+                            [1.1, 2.1, 3.1, 4.1, 5.1, 6.1],
+                            [0, 1, 2, 3, 4, 5],
+                            [0.1, 1.1, 2.1, 3.1, 4.1, 5.1],
+                        ],
+                        "name": "cartesian_position",
+                        "sample_rate": 10,
+                    }
                 ],
             },
             200,
@@ -93,11 +133,17 @@ def test_compare_metric_router(payload, expected_status, expected_response):
             {
                 "dataNames": ["droid_00000000"],
             },
-            400,
+            422,
             None,
         ),
         (
-            {"dataNames": ["droid_00000000", "droid_00000001", "droid_00000002"]},
+            {
+                "dataNames": [
+                    {"dataName": "droid_00000000", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000001", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000002", "joints": ["cartesian_position"]},
+                ]
+            },
             200,
             None,
         ),
@@ -121,20 +167,28 @@ def test_group_metric_router(payload, expected_status, expected_response):
                 ],
                 "dataNames2": ["droid_00000003", "droid_00000004", "droid_00000005"],
             },
-            400,
+            422,
             None,
         ),
         (
             {
                 "dataNames1": ["droid_00000000", "droid_00000001", "droid_00000002"],
             },
-            400,
+            422,
             None,
         ),
         (
             {
-                "dataNames1": ["droid_00000000", "droid_00000001", "droid_00000002"],
-                "dataNames2": ["droid_00000003", "droid_00000004", "droid_00000005"],
+                "dataNames1": [
+                    {"dataName": "droid_00000000", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000001", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000002", "joints": ["cartesian_position"]},
+                ],
+                "dataNames2": [
+                    {"dataName": "droid_00000003", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000004", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000005", "joints": ["cartesian_position"]},
+                ],
             },
             200,
             None,
@@ -155,20 +209,27 @@ def test_group_compare_metric_router(payload, expected_status, expected_response
             {
                 "dataNames": ["droid_00000003", "droid_00000004", "droid_00000005"],
             },
-            400,
+            422,
             None,
         ),
         (
             {
                 "dataName": "droid_00000000",
             },
-            400,
+            422,
             None,
         ),
         (
             {
-                "dataName": "droid_00000000",
-                "dataNames": ["droid_00000003", "droid_00000004", "droid_00000005"],
+                "dataName": {
+                    "dataName": "droid_00000003",
+                    "joints": ["cartesian_position"],
+                },
+                "dataNames": [
+                    {"dataName": "droid_00000000", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000001", "joints": ["cartesian_position"]},
+                    {"dataName": "droid_00000002", "joints": ["cartesian_position"]},
+                ],
             },
             200,
             None,

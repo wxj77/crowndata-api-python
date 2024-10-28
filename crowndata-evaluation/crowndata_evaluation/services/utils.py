@@ -1,13 +1,18 @@
 import json
 import numpy as np
 from fastapi import HTTPException
+import os
+
+# Get the EVALUATION_API_ENDPOINT environment variable
+data_dir = os.getenv("DATA_DIR", "./public")
 
 
-def read_trajectory_json(data_name: str) -> np.ndarray:
+def read_trajectory_json(data_name: str, joint: str) -> np.ndarray:
     """
     Reads a JSON file and returns the data as a NumPy array.
     Args:
         data_name (str): Data Name.
+        joint: Joint Name.
     Returns:
         np.ndarray: An array containing the x, y, z, roll, pitch, and yaw values.
     Raises:
@@ -20,31 +25,12 @@ def read_trajectory_json(data_name: str) -> np.ndarray:
             f"Expected data_name to be a string, but got {type(data_name).__name__}"
         )
 
-    file_path = (
-        f"./public/data/{data_name}/trajectories/cartesian_position__trajectory.json"
-    )
+    file_path = f"{data_dir}/data/{data_name}/trajectories/{joint}__trajectory.json"
 
     with open(file_path, "r") as file:
         data = json.load(file)
 
-    # Validate that data is a list of dictionaries
-    if not isinstance(data, list):
-        raise ValueError("Expected JSON data to be a list of dictionaries.")
-
-    xyzrpy_array = np.array(
-        [
-            [
-                entry.get("x"),
-                entry.get("y"),
-                entry.get("z"),
-                entry.get("roll"),
-                entry.get("pitch"),
-                entry.get("yaw"),
-            ]
-            for entry in data
-            if isinstance(entry, dict)  # Ensure each entry is a dictionary
-        ]
-    )
+    xyzrpy_array = np.array(data.get("data"))
 
     # Output type check
     if not isinstance(xyzrpy_array, np.ndarray):
@@ -55,12 +41,13 @@ def read_trajectory_json(data_name: str) -> np.ndarray:
     return xyzrpy_array
 
 
-def fetch_trajectory_json(data_name: str) -> np.ndarray:
+def fetch_trajectory_json(data_name: str, joint: str) -> np.ndarray:
     """
     Reads a JSON file and returns the data as a NumPy array.
 
     Args:
         data_name (str): Data Name.
+        joint(str): Joint Name.
 
     Returns:
         np.ndarray: An array containing the x, y, z, roll, pitch, and yaw values.
@@ -70,7 +57,7 @@ def fetch_trajectory_json(data_name: str) -> np.ndarray:
     """
     # Your logic to read the JSON file/data
     try:
-        return read_trajectory_json(data_name=data_name)
+        return read_trajectory_json(data_name=data_name, joint=joint)
 
     except TypeError as e:
         # If the data doesn't exist, raise an HTTPException
