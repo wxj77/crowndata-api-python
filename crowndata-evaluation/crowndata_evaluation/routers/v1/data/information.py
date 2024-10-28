@@ -16,8 +16,8 @@ class InformationRequest(BaseModel):
 # POST endpoint for evaluating metrics
 @information_router.post(
     "",
-    summary="Metric",
-    description="Retrieve metric",
+    summary="Information",
+    description="Retrieve information",
 )
 async def information(request: InformationRequest):
     # Check if both 'dataList' and 'dataName' are provided or neither is
