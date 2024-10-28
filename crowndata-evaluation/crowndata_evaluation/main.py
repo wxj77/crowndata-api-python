@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from crowndata_evaluation.routers.v1.evaluation.metric_router import metric_router
 from crowndata_evaluation.routers.v1.evaluation.compare_metric_router import (
     compare_metric_router,
@@ -16,6 +18,7 @@ from crowndata_evaluation.routers.v1.data.information import (
     information_router,
 )
 
+
 app = FastAPI(
     title="Crowndata Evaluation API",
     description="API for evaluating metrics from Crowndata",
@@ -23,6 +26,18 @@ app = FastAPI(
     docs_url="/docs/api/crowndata-api-python/crowndata-evaluation/",  # Custom path for Swagger UI
     redoc_url="/redoc/api/crowndata-api-python/crowndata-evaluation/",  # Custom path for ReDoc
 )
+
+# Allow all origins or specify domains like ['http://localhost:3000'] for local testing
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "*"
+    ],  # Change "*" to specific domains in production for better security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.include_router(metric_router, prefix="/v1/evaluation/metrics", tags=["Metrics"])
 app.include_router(
