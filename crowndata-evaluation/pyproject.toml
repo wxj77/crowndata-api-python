@@ -13,6 +13,7 @@ numpy = "^2.1.2"
 pandas = "^2.2.3"
 scikit-learn = "^1.5.2"
 urdf-parser-py = "^0.0.4"
+openai = "^1.52.2"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -107,7 +107,7 @@ class EvaluationCompareMetricResponse(BaseModel):
     description="Compare two data",
     response_model=EvaluationCompareMetricResponse,
 )
-async def compare_metric(request: EvaluationCompareMetricRequest):
+async def post(request: EvaluationCompareMetricRequest):
     # Ensure both dataList1/dataName1 and dataList1/dataName2 conditions are met
     if (request.dataList1 is not None and request.dataName1 is not None) or (
         request.dataList1 is None and request.dataName1 is None
