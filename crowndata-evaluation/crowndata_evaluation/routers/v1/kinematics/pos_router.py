@@ -6,8 +6,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from crowndata_evaluation.services.kinematics.urdf import (
-    get_robot_from_urdf,
     forward_kinematics,
+    get_robot_from_urdf,
 )
 from crowndata_evaluation.services.utils import fetch_joint_json
 

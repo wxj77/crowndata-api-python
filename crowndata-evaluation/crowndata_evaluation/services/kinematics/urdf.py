@@ -98,7 +98,7 @@ def forward_kinematics(
 
     ancestors = robot.get_chain(robot.get_root(), link_name)
     joint_map = {joint.name: joint for joint in robot.joints}
-    
+
     for joint_record in joint_records:
         for joint_name in ancestors:
             if joint_name in joint_map.keys():
