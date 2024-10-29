@@ -1,6 +1,7 @@
-from fastapi.testclient import TestClient
-from crowndata_evaluation.main import app
 import pytest
+from fastapi.testclient import TestClient
+
+from crowndata_evaluation.main import app
 
 client = TestClient(app)
 

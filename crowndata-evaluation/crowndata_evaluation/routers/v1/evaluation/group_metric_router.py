@@ -1,18 +1,20 @@
+from typing import List, Optional
+
+import numpy as np
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Optional, List
-import numpy as np
-from crowndata_evaluation.services.utils import (
-    fetch_trajectory_json,
-    fetch_trajectory_sample_rate,
-)
+
+from crowndata_evaluation.routers.v1.helper import JointData, PoseData
 from crowndata_evaluation.services.action_consistency.action_variance_calculator import (
     ActionVarianceCalculator,
 )
 from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
     StateSimilarityCalculator,
 )
-from crowndata_evaluation.routers.v1.evaluation.helper import PoseData, JointData
+from crowndata_evaluation.services.utils import (
+    fetch_trajectory_json,
+    fetch_trajectory_sample_rate,
+)
 
 group_metric_router = APIRouter()
 
