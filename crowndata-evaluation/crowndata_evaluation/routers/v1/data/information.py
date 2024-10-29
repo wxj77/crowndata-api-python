@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from crowndata_evaluation.services.utils import fetch_information_json
 
