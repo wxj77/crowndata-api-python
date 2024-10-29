@@ -1,7 +1,9 @@
 import json
+import os
+from typing import Dict
+
 import numpy as np
 from fastapi import HTTPException
-import os
 
 # Get the EVALUATION_API_ENDPOINT environment variable
 data_dir = os.getenv("DATA_DIR", "./public")
@@ -85,7 +87,7 @@ def fetch_trajectory_json(data_name: str, joint: str) -> np.ndarray:
         )
 
 
-def fetch_information_json(data_name: str) -> float:
+def fetch_information_json(data_name: str) -> Dict:
     """
     Reads a JSON file and returns the information.
 
@@ -108,6 +110,42 @@ def fetch_information_json(data_name: str) -> float:
 
         # Define the file path
         file_path = f"{data_dir}/data/{data_name}/information.json"
+
+        # Open and read the JSON file
+        with open(file_path, "r") as file:
+            return json.load(file)
+
+    except FileNotFoundError:
+        # Return the default sample rate if the file is not found
+        return {}
+    except json.JSONDecodeError:
+        # Handle JSON decode errors (if the file is corrupted or not properly formatted)
+        return {}
+
+
+def fetch_joint_json(data_name: str) -> Dict:
+    """
+    Reads a JSON file and returns the information.
+
+    Args:
+        data_name (str): The name of the data set.
+
+    Returns:
+        Dict: Joint data.
+
+    Raises:
+        FileNotFoundError: If the file is not found.
+    """
+
+    try:
+        # Ensure the data_name is a string
+        if not isinstance(data_name, str):
+            raise TypeError(
+                f"Expected data_name to be a string, but got {type(data_name).__name__}"
+            )
+
+        # Define the file path
+        file_path = f"{data_dir}/data/{data_name}/trajectories/joint_positions.json"
 
         # Open and read the JSON file
         with open(file_path, "r") as file:

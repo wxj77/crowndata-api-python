@@ -1,6 +1,9 @@
+from typing import List, Union
+
 import numpy as np
-from typing import Union, List
-from crowndata_evaluation.services.action_consistency.clustering import define_clusters
+
+from crowndata_evaluation.services.action_consistency.clustering import \
+    define_clusters
 
 
 class ActionVarianceCalculator:

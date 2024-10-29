@@ -1,6 +1,9 @@
+from typing import Dict, List
+
 import numpy as np
-from typing import List, Dict
-from crowndata_evaluation.services.action_consistency.clustering import define_clusters
+
+from crowndata_evaluation.services.action_consistency.clustering import \
+    define_clusters
 
 
 class StateSimilarityCalculator:

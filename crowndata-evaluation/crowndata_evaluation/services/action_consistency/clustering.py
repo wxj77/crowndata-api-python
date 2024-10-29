@@ -1,5 +1,6 @@
-import numpy as np
 from typing import Dict
+
+import numpy as np
 import sklearn.cluster
 from scipy.spatial import cKDTree
 

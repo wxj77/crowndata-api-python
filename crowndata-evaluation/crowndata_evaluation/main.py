@@ -3,23 +3,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
-from crowndata_evaluation.routers.v1.evaluation.metric_router import metric_router
-from crowndata_evaluation.routers.v1.evaluation.compare_metric_router import (
-    compare_metric_router,
-)
-from crowndata_evaluation.routers.v1.evaluation.group_metric_router import (
-    group_metric_router,
-)
-from crowndata_evaluation.routers.v1.evaluation.group_compare_metric_router import (
-    group_compare_metric_router,
-)
-from crowndata_evaluation.routers.v1.evaluation.compare_single_to_group_metric_route import (
-    compare_single_to_group_router,
-)
-from crowndata_evaluation.routers.v1.data.information import (
-    information_router,
-)
-
+from crowndata_evaluation.routers.v1.data.information import information_router
+from crowndata_evaluation.routers.v1.evaluation.compare_metric_router import \
+    compare_metric_router
+from crowndata_evaluation.routers.v1.evaluation.compare_single_to_group_metric_route import \
+    compare_single_to_group_router
+from crowndata_evaluation.routers.v1.evaluation.group_compare_metric_router import \
+    group_compare_metric_router
+from crowndata_evaluation.routers.v1.evaluation.group_metric_router import \
+    group_metric_router
+from crowndata_evaluation.routers.v1.evaluation.metric_router import \
+    metric_router
+from crowndata_evaluation.routers.v1.kinematics.pos_router import pos_router
 
 app = FastAPI(
     title="Crowndata Evaluation API",
@@ -69,26 +64,33 @@ app.include_router(metric_router, prefix="/v1/evaluation/metrics", tags=["Metric
 app.include_router(
     compare_metric_router,
     prefix="/v1/evaluation/compare-metrics",
-    tags=["Compare Metrics"],
+    tags=["Evaluation"],
 )
 app.include_router(
     group_metric_router,
     prefix="/v1/evaluation/group-metrics",
-    tags=["Group Metrics"],
+    tags=["Evaluation"],
 )
 app.include_router(
     group_compare_metric_router,
     prefix="/v1/evaluation/group-compare-metrics",
-    tags=["Group Compare Metrics"],
+    tags=["Evaluation"],
 )
 app.include_router(
     compare_single_to_group_router,
     prefix="/v1/evaluation/compare-single-to-group-metrics",
-    tags=["Compare Single to Groups Metrics"],
+    tags=["Evaluation"],
 )
 
 app.include_router(
     information_router,
     prefix="/v1/data/information",
-    tags=["Information"],
+    tags=["Data"],
+)
+
+
+app.include_router(
+    pos_router,
+    prefix="/v1/kinematics/pos",
+    tags=["Kinematics"],
 )
