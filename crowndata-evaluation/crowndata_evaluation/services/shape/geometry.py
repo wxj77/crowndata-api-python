@@ -1,5 +1,6 @@
-import numpy as np
 from typing import Dict
+
+import numpy as np
 from scipy.interpolate import interp1d
 from scipy.spatial import procrustes
 from scipy.special import kl_div
