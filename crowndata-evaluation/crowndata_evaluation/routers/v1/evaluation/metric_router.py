@@ -95,7 +95,7 @@ class EvaluationMetricResponse(BaseModel):
     description="Retrieve metric",
     response_model=EvaluationMetricResponse,
 )
-async def metric(request: EvaluationMetricRequest):
+async def post(request: EvaluationMetricRequest):
     # Check if both 'dataList' and 'dataName' are provided or neither is
     if (request.dataList is not None and request.dataName is not None) or (
         request.dataList is None and request.dataName is None

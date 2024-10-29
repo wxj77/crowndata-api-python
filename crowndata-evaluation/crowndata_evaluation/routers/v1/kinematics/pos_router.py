@@ -36,7 +36,7 @@ class PosResponse(BaseModel):
     description="Retrieve Pos",
     response_model=PosResponse,
 )
-async def pos(request: PosRequest):
+async def post(request: PosRequest):
     robot = get_robot_from_urdf(f"{data_dir}/{request.urdf}")
 
     joint_data = fetch_joint_json(data_name=request.dataName)
