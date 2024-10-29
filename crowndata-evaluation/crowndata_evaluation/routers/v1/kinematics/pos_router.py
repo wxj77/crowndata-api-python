@@ -7,9 +7,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 
 from crowndata_evaluation.routers.v1.helper import JointData, PoseData
-from crowndata_evaluation.services.kinematics.urdf import (forward_kinematics,
-                                                           get_robot_from_urdf,
-                                                           link_pos_kinematics)
+from crowndata_evaluation.services.kinematics.urdf import (
+    forward_kinematics,
+    get_robot_from_urdf,
+    link_pos_kinematics,
+)
 from crowndata_evaluation.services.utils import fetch_joint_json
 
 # Get the EVALUATION_API_ENDPOINT environment variable

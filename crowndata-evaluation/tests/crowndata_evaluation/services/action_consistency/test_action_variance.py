@@ -1,8 +1,9 @@
 import numpy as np
 import pytest
 
-from crowndata_evaluation.services.action_consistency.action_variance_calculator import \
-    ActionVarianceCalculator
+from crowndata_evaluation.services.action_consistency.action_variance_calculator import (
+    ActionVarianceCalculator,
+)
 
 
 @pytest.mark.parametrize(

@@ -4,16 +4,19 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 from crowndata_evaluation.routers.v1.data.information import information_router
-from crowndata_evaluation.routers.v1.evaluation.compare_metric_router import \
-    compare_metric_router
-from crowndata_evaluation.routers.v1.evaluation.compare_single_to_group_metric_route import \
-    compare_single_to_group_router
-from crowndata_evaluation.routers.v1.evaluation.group_compare_metric_router import \
-    group_compare_metric_router
-from crowndata_evaluation.routers.v1.evaluation.group_metric_router import \
-    group_metric_router
-from crowndata_evaluation.routers.v1.evaluation.metric_router import \
-    metric_router
+from crowndata_evaluation.routers.v1.evaluation.compare_metric_router import (
+    compare_metric_router,
+)
+from crowndata_evaluation.routers.v1.evaluation.compare_single_to_group_metric_route import (
+    compare_single_to_group_router,
+)
+from crowndata_evaluation.routers.v1.evaluation.group_compare_metric_router import (
+    group_compare_metric_router,
+)
+from crowndata_evaluation.routers.v1.evaluation.group_metric_router import (
+    group_metric_router,
+)
+from crowndata_evaluation.routers.v1.evaluation.metric_router import metric_router
 from crowndata_evaluation.routers.v1.kinematics.pos_router import pos_router
 
 app = FastAPI(

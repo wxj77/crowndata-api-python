@@ -5,12 +5,17 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, validator
 
 from crowndata_evaluation.routers.v1.helper import JointData, PoseData
-from crowndata_evaluation.services.action_consistency.state_similarity_calculator import \
-    StateSimilarityCalculator
+from crowndata_evaluation.services.action_consistency.state_similarity_calculator import (
+    StateSimilarityCalculator,
+)
 from crowndata_evaluation.services.shape.geometry import (
-    calculate_disparity_based_similarity, calculate_frechet_similarity)
-from crowndata_evaluation.services.utils import (fetch_trajectory_json,
-                                                 fetch_trajectory_sample_rate)
+    calculate_disparity_based_similarity,
+    calculate_frechet_similarity,
+)
+from crowndata_evaluation.services.utils import (
+    fetch_trajectory_json,
+    fetch_trajectory_sample_rate,
+)
 
 compare_metric_router = APIRouter()
 
