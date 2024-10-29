@@ -17,7 +17,7 @@ The Crowndata Evaluation API provides interactive documentation generated automa
 
 
 ## How to format code
-1. `poetry run black . && poetry run nbqa black .`
+1. `poetry run isort . && poetry run black . && poetry run nbqa black .`
 2. `poetry run autoflake --remove-all-unused-imports --recursive --in-place .`
 
 

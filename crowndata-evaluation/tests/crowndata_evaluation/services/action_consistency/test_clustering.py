@@ -2,7 +2,9 @@ import numpy as np
 import pytest
 
 from crowndata_evaluation.services.action_consistency.clustering import (
-    define_clusters, sklearn_cluster_wrapper)
+    define_clusters,
+    sklearn_cluster_wrapper,
+)
 
 
 @pytest.mark.parametrize(
