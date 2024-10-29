@@ -20,7 +20,7 @@ class InformationRequest(BaseModel):
     summary="Information",
     description="Retrieve information",
 )
-async def information(request: InformationRequest):
+async def post(request: InformationRequest):
     # Check if both 'dataList' and 'dataName' are provided or neither is
     if request.dataName is None:
         # Raise an HTTPException with a 400 status code for bad request

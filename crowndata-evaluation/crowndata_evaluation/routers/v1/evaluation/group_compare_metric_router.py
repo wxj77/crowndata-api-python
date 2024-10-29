@@ -52,7 +52,7 @@ class EvaluationGroupCompareMetricResponse(BaseModel):
     description="Retrieve group compare metric",
     response_model=EvaluationGroupCompareMetricResponse,
 )
-async def group_compare_metric(request: EvaluationGroupCompareMetricRequest):
+async def post(request: EvaluationGroupCompareMetricRequest):
     # Check if 'dataNames' are provided and there are more than 3 items
     if not request.dataNames1 or len(request.dataNames1) < 3:
         raise HTTPException(

@@ -54,7 +54,7 @@ class EvaluationGroupCompareMetricResponse(BaseModel):
     description="Compare Single to Group",
     response_model=EvaluationGroupCompareMetricResponse,
 )
-async def compare_single_to_group_metric(request: EvaluationGroupCompareMetricRequest):
+async def post(request: EvaluationGroupCompareMetricRequest):
     # Check if 'dataNames' are provided and there are more than 3 items
     if not request.dataNames or len(request.dataNames) < 3:
         raise HTTPException(

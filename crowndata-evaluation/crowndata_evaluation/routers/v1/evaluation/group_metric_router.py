@@ -48,7 +48,7 @@ class EvaluationGroupMetricResponse(BaseModel):
     description="Retrieve group metric",
     response_model=EvaluationGroupMetricResponse,
 )
-async def group_metric(request: EvaluationGroupMetricRequest):
+async def post(request: EvaluationGroupMetricRequest):
     # Check if 'dataNames' are provided and there are more than 3 items
     if not request.dataNames or len(request.dataNames) < 3:
         raise HTTPException(

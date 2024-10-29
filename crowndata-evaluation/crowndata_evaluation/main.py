@@ -18,6 +18,7 @@ from crowndata_evaluation.routers.v1.evaluation.group_metric_router import (
 )
 from crowndata_evaluation.routers.v1.evaluation.metric_router import metric_router
 from crowndata_evaluation.routers.v1.kinematics.pos_router import pos_router
+from crowndata_evaluation.routers.v1.openai.analyze_image import analyze_image_router
 
 app = FastAPI(
     title="Crowndata Evaluation API",
@@ -63,7 +64,7 @@ class CustomCORSHeaderMiddleware(BaseHTTPMiddleware):
 app.add_middleware(CustomCORSHeaderMiddleware)
 
 
-app.include_router(metric_router, prefix="/v1/evaluation/metrics", tags=["Metrics"])
+app.include_router(metric_router, prefix="/v1/evaluation/metrics", tags=["Evaluation"])
 app.include_router(
     compare_metric_router,
     prefix="/v1/evaluation/compare-metrics",
@@ -96,4 +97,10 @@ app.include_router(
     pos_router,
     prefix="/v1/kinematics/pos",
     tags=["Kinematics"],
+)
+
+app.include_router(
+    analyze_image_router,
+    prefix="/v1/openai/analyze-image",
+    tags=["OpenAI"],
 )
