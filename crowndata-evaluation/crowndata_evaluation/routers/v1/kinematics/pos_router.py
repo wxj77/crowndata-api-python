@@ -6,8 +6,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from crowndata_evaluation.services.kinematics.urdf import (
+    forward_kinematics,
     get_robot_from_urdf,
-    link_pos_kinematics,
 )
 from crowndata_evaluation.services.utils import fetch_joint_json
 
@@ -45,7 +45,7 @@ async def pos(request: PosRequest):
     ).to_dict(orient="records")
     link_name = request.linkName
 
-    data = link_pos_kinematics(
+    data = forward_kinematics(
         robot=robot, joint_records=joint_records, link_name=link_name
     )
 

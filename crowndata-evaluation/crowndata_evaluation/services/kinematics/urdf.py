@@ -89,37 +89,29 @@ def joint_transform(joint, angle: float) -> np.ndarray:
         return T_origin
 
 
-def forward_kinematics(robot, joint_angles: Dict[str, float]) -> List[float]:
-    """Compute the positions of each joint and link based on joint angles."""
-    T = np.eye(4)  # Starting from the base frame
-    positions = {}
-
-    for joint in robot.joints:
-        angle = joint_angles.get(joint.name, 0.0)  # Get angle or default to 0
-        T = T @ joint_transform(joint, angle)  # Apply joint transformation
-        positions[joint.child] = T[:3, 3].tolist()  # Store the position of each link
-
-    return positions
-
-
-def link_pos_kinematics(
+def forward_kinematics(
     robot, joint_records: List[Dict[str, float]], link_name: str
 ) -> List[List[float]]:
     """Compute the positions of each joint and link based on joint angles."""
     T = np.eye(4)  # Starting from the base frame
     positions = []
 
-    for joint_record in joint_records:
-        for joint in robot.joints:
-            angle = joint_record.get(joint.name, 0.0)  # Get angle or default to 0
-            angle = joint_record.get(joint.name, 0.0)  # Get angle or default to 0
-            T = T @ joint_transform(joint, angle)  # Apply joint transformation
+    ancestors = robot.get_chain(robot.get_root(), link_name)
+    joint_map = {joint.name: joint for joint in robot.joints}
 
-            if joint.child == link_name:
-                position = [
-                    round(num, 4) for num in T[:3, 3].tolist() + matrix_to_rpy(T)
-                ]
-                positions.append(position)  # Store the position of each link
-                break
+    for joint_record in joint_records:
+        for joint_name in ancestors:
+            if joint_name in joint_map.keys():
+                joint = joint_map[joint_name]
+                angle = joint_record.get(joint.name, 0.0)  # Get angle or default to 0
+                angle = joint_record.get(joint.name, 0.0)  # Get angle or default to 0
+                T = T @ joint_transform(joint, angle)  # Apply joint transformation
+
+                if joint.child == link_name:
+                    position = [
+                        round(num, 4) for num in T[:3, 3].tolist() + matrix_to_rpy(T)
+                    ]
+                    positions.append(position)  # Store the position of each link
+                    break
 
     return positions
