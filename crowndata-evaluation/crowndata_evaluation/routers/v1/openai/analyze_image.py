@@ -8,10 +8,11 @@ from pydantic import BaseModel, Field
 
 # Get the EVALUATION_API_ENDPOINT environment variable
 data_dir = os.getenv("DATA_DIR", "./public")
-open_api_key = os.getenv("OPEN_AI_API_KEY")
-# or os.environ["OPEN_AI_API_KEY"] = open_api_key
+open_api_key = os.getenv("OPENAI_API_KEY")
 
-client = OpenAI()
+client = None
+if open_api_key:
+    client = OpenAI()
 
 analyze_image_router = APIRouter()
 
@@ -72,20 +73,23 @@ async def post(request: AnalyzeImageRequest):
         }
         for base64_image in base64_images
     ]
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"{request.prompt}",
-                    },
-                ]
-                + image_urls,
-            }
-        ],
-    )
+    
+    response = {}
+    if client:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": f"{request.prompt}",
+                        },
+                    ]
+                    + image_urls,
+                }
+            ],
+        )
 
     return response.choices[0]
