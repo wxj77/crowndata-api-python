@@ -73,7 +73,6 @@ async def post(request: AnalyzeImageRequest):
         }
         for base64_image in base64_images
     ]
-
     response = {}
     if client:
         response = client.chat.completions.create(

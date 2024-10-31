@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 import pandas as pd
@@ -10,6 +11,9 @@ from crowndata_evaluation.services.kinematics.urdf import (
     get_robot_from_urdf,
 )
 from crowndata_evaluation.services.utils import fetch_joint_json
+
+# Get the EVALUATION_API_ENDPOINT environment variable
+data_dir = os.getenv("DATA_DIR", "./public")
 
 pos_router = APIRouter()
 
@@ -35,7 +39,7 @@ class PosResponse(BaseModel):
 )
 async def post(request: PosRequest):
     urdf_file_path = get_urdf_file_path(request.urdf)
-    robot = get_robot_from_urdf(f"{urdf_file_path}")
+    robot = get_robot_from_urdf(f"{data_dir}/{request.urdf}")
 
     joint_data = fetch_joint_json(data_name=request.dataName)
     joint_records = pd.DataFrame(
