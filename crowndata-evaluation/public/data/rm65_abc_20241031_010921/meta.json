@@ -1,0 +1,15 @@
+{
+    "type": "rm65",
+    "device": {
+        "name": "rm65_abc",
+        "type": "rm65",        
+        "camera_names": [
+          "cam_high",
+          "cam_left_wrist",
+          "cam_right_wrist",
+          "cam_low"
+        ]
+    },
+    "trajectory": "rm65_abc_20241031_010921.h5",
+    "DT" :0.02
+}
