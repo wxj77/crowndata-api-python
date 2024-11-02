@@ -110,7 +110,6 @@ def forward_kinematics(
                     ]
                     positions.append(position)  # Store the position of each link
                     break
-        # break
     return positions
 
 
